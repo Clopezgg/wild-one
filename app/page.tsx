@@ -1,5 +1,5 @@
-import MagicalSafari3D from "@/components/MagicalSafari3D";
+import { redirect } from "next/navigation";
 
 export default function HomePage() {
-  return <MagicalSafari3D />;
+  redirect("/v4/index.html");
 }
