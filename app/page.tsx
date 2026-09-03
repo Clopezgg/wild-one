@@ -1,5 +1,5 @@
-import LivingSafariExperience from "@/components/safari/LivingSafariExperience";
+import JuanAlexanderOfficial from "@/components/safari/JuanAlexanderOfficial";
 
 export default function HomePage() {
-  return <LivingSafariExperience />;
+  return <JuanAlexanderOfficial />;
 }
