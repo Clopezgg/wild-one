@@ -1,0 +1,147 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');
+
+.experience{
+  --deep:#17392d;
+  --forest:#315f42;
+  --sage:#829a78;
+  --cream:#f6eddc;
+  --ivory:#fffaf0;
+  --sand:#d8bd91;
+  --camel:#b77943;
+  --brown:#6e4a36;
+  --gold:#d7b35d;
+  --ink:#294236;
+  --serif:'Playfair Display',Georgia,serif;
+  --ritual:'Cinzel',Georgia,serif;
+  --sans:'DM Sans',Arial,sans-serif;
+  position:relative;
+  min-height:100vh;
+  color:var(--ink);
+  background:#efe4cf;
+  overflow-x:hidden;
+  font-family:var(--sans);
+}
+
+.webgl{position:fixed;inset:0;z-index:0;background:#efe4cf}
+.webgl canvas{display:block;width:100%;height:100%}
+.story{position:relative;z-index:10}
+.scene{min-height:100svh;display:flex;align-items:center;padding:12vh 6vw;pointer-events:none}
+.centerScene{justify-content:center;text-align:center}
+.leftScene{justify-content:flex-start}
+.rightScene{justify-content:flex-end}
+
+.panel{pointer-events:auto;width:min(92vw,610px);padding:34px;border:1px solid rgba(255,255,255,.72);background:linear-gradient(145deg,rgba(255,250,240,.82),rgba(246,237,220,.65));box-shadow:0 28px 90px rgba(80,60,35,.18);backdrop-filter:blur(18px) saturate(1.15);-webkit-backdrop-filter:blur(18px) saturate(1.15);color:var(--ink);border-radius:30px}
+.panel h3{margin:14px 0 16px;font:600 clamp(42px,6vw,74px)/.98 var(--serif);color:var(--forest)}
+.heroPanel{background:linear-gradient(145deg,rgba(255,250,240,.66),rgba(246,237,220,.48));padding:40px 34px}
+.wildOne{margin:8px 0 18px;font:700 clamp(70px,12vw,132px)/.82 var(--serif);color:#b97843;text-shadow:0 8px 30px rgba(105,70,35,.12)}
+.body{margin:0;line-height:1.78;color:rgba(41,66,54,.76);font-size:14px}
+.kicker{margin:0;text-transform:uppercase;letter-spacing:.24em;font:600 9px/1.45 var(--ritual);color:#7f704d}
+.date{margin:24px 0 0;font:600 10px var(--ritual);letter-spacing:.18em;color:#7d6540}
+
+.gate{position:fixed;inset:0;z-index:120;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 50% 40%,rgba(255,250,240,.08),rgba(74,98,72,.16));backdrop-filter:blur(3px)}
+.gateGlass{width:min(92vw,650px);padding:42px 34px;text-align:center;border:1px solid rgba(255,255,255,.82);background:linear-gradient(145deg,rgba(255,250,240,.88),rgba(239,228,207,.72));box-shadow:0 34px 120px rgba(77,58,32,.22);backdrop-filter:blur(20px);border-radius:34px}
+.gateGlass h1{margin:16px auto 16px;max-width:620px;font:600 clamp(46px,8vw,82px)/.95 var(--serif);color:var(--forest)}
+.monogram,.passSeal{position:relative;width:96px;height:96px;margin:0 auto 26px;border:1px solid rgba(183,121,67,.45);border-radius:50%;display:grid;place-items:center;background:rgba(255,250,240,.5);box-shadow:0 0 0 8px rgba(183,121,67,.055),0 18px 45px rgba(103,72,42,.12)}
+.monogram::after,.passSeal::after{content:"";position:absolute;inset:10px;border:1px dotted rgba(183,121,67,.35);border-radius:50%}
+.monogram span,.passSeal span{font:600 42px var(--serif);color:var(--camel)}
+.monogram b,.passSeal b{position:absolute;right:-7px;top:4px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--gold);color:var(--deep);font:700 10px var(--ritual)}
+
+.primary,.secondaryButton,.calendarGrid button,.passActions button{border:0;min-height:54px;padding:0 22px;border-radius:999px;font:700 9px var(--ritual);letter-spacing:.14em;text-transform:uppercase;transition:transform .2s ease,box-shadow .2s ease,background .2s ease}
+.primary{background:linear-gradient(135deg,#315f42,#203f31);color:#fff;box-shadow:0 18px 38px rgba(49,95,66,.2)}
+.primary:hover,.secondaryButton:hover,.calendarGrid button:hover,.passActions button:hover{transform:translateY(-2px)}
+.primary:disabled{opacity:.55;cursor:wait}
+.secondary,.secondaryButton{display:inline-flex;align-items:center;justify-content:center;min-height:52px;margin-top:22px;padding:0 22px;border:1px solid rgba(49,95,66,.18);background:rgba(255,250,240,.52);color:var(--forest);text-decoration:none;border-radius:999px;font:700 9px var(--ritual);letter-spacing:.14em}
+
+.hud{position:fixed;z-index:90;left:14px;right:14px;top:max(14px,env(safe-area-inset-top));display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none}
+.roleChip{pointer-events:auto;display:flex;flex-direction:column;gap:2px;max-width:210px;padding:11px 15px;border:1px solid rgba(255,255,255,.75);background:rgba(255,250,240,.72);backdrop-filter:blur(14px);border-radius:18px;box-shadow:0 12px 36px rgba(76,58,31,.12)}
+.roleChip span{font:600 8px var(--ritual);letter-spacing:.13em;text-transform:uppercase;color:#8b6947}
+.roleChip b{font:600 14px var(--serif);color:var(--forest)}
+.hudActions{pointer-events:auto;display:flex;gap:7px}
+.hudActions button{height:42px;padding:0 12px;border:1px solid rgba(255,255,255,.75);background:rgba(255,250,240,.72);backdrop-filter:blur(14px);border-radius:999px;color:var(--forest);font:700 8px var(--ritual);letter-spacing:.1em;box-shadow:0 12px 36px rgba(76,58,31,.1)}
+
+.trailHud{position:fixed;z-index:80;right:18px;top:50%;transform:translateY(-50%);display:grid;gap:7px}
+.trailHud i{display:block;width:5px;height:22px;border-radius:99px;background:rgba(255,255,255,.45);box-shadow:0 0 0 1px rgba(65,85,60,.08)}
+.trailHud .trailOn{background:var(--role);box-shadow:0 0 16px color-mix(in srgb,var(--role) 50%,transparent)}
+
+.revealOverlay,.passOverlay{position:fixed;inset:0;z-index:130;display:grid;place-items:center;padding:20px;background:rgba(35,56,43,.34);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.revealCard{width:min(92vw,590px);padding:42px 34px;text-align:center;border-radius:34px;border:1px solid rgba(255,255,255,.82);background:linear-gradient(155deg,rgba(255,250,240,.96),rgba(239,228,207,.9));box-shadow:0 38px 140px rgba(63,48,26,.25)}
+.animalName{margin:18px auto 0;font:600 clamp(50px,9vw,86px)/.9 var(--serif);color:var(--role)}
+.revealCard h2{margin:10px 0 12px;font:600 clamp(33px,5vw,52px)/1 var(--serif);color:var(--forest)}
+.roleQuote{margin:0 auto 12px;max-width:450px;font:italic 600 18px/1.5 var(--serif);color:#745f45}
+.revealCard .primary{margin-top:26px}
+
+.identityInline{display:grid;justify-items:center;gap:3px;margin:28px auto 0;padding:16px 18px;width:min(100%,390px);border:1px solid rgba(49,95,66,.12);background:rgba(255,255,255,.32);border-radius:20px}
+.identityInline span{font:600 8px var(--ritual);letter-spacing:.14em;color:#8a7758}
+.identityInline strong{font:600 23px var(--serif);color:var(--role)}
+.identityInline em{font:600 11px var(--ritual);letter-spacing:.08em;font-style:normal;color:var(--forest)}
+
+.details{margin:28px 0 0;border-top:1px solid rgba(49,95,66,.12)}
+.details div{display:grid;grid-template-columns:112px 1fr;gap:16px;padding:16px 0;border-bottom:1px solid rgba(49,95,66,.1);text-align:left}
+.details span{font:700 8px var(--ritual);letter-spacing:.13em;color:#8a7758}
+.details strong{font-size:12px;line-height:1.45;color:#4c5d53}
+
+.calendarGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:26px}
+.calendarGrid button{min-height:50px;background:#fff8ec;color:var(--forest);border:1px solid rgba(49,95,66,.12);box-shadow:0 10px 28px rgba(75,55,32,.08)}
+
+.countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:28px}
+.countdown div{padding:20px 8px;border-radius:22px;background:rgba(255,255,255,.42);border:1px solid rgba(49,95,66,.1)}
+.countdown strong{display:block;font:600 clamp(40px,6vw,66px)/1 var(--serif);color:var(--forest)}
+.countdown span{display:block;margin-top:7px;font:700 7px var(--ritual);letter-spacing:.14em;color:#88775b}
+
+.rolePassportPreview{display:grid;gap:3px;margin:24px 0;padding:20px;border-radius:24px;background:linear-gradient(135deg,color-mix(in srgb,var(--role) 14%,white),rgba(255,255,255,.52));border:1px solid color-mix(in srgb,var(--role) 28%,transparent)}
+.rolePassportPreview span{font:600 28px var(--serif);color:var(--role)}
+.rolePassportPreview strong{font:700 9px var(--ritual);letter-spacing:.11em;color:var(--forest)}
+.rolePassportPreview em{font:600 8px var(--ritual);letter-spacing:.11em;font-style:normal;color:#8a7758}
+.form{margin-top:20px;text-align:left}
+.form label{display:block;margin-bottom:8px;font:700 8px var(--ritual);letter-spacing:.14em;color:#85745a}
+.form input{width:100%;height:58px;padding:0 16px;border:1px solid rgba(49,95,66,.13);border-radius:16px;background:rgba(255,255,255,.5);outline:none;color:var(--forest);font:600 21px var(--serif)}
+.form input:focus{border-color:color-mix(in srgb,var(--role) 55%,#315f42);box-shadow:0 0 0 4px color-mix(in srgb,var(--role) 10%,transparent)}
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:11px 0 12px}
+.choice button{min-height:46px;border:1px solid rgba(49,95,66,.12);border-radius:15px;background:rgba(255,255,255,.44);color:#627064;font:700 8px var(--ritual);letter-spacing:.1em}
+.choice .choiceActive{background:var(--forest);color:#fff;border-color:var(--forest)}
+.form .primary{width:100%}
+.whatsapp{display:block;margin-top:16px;padding-bottom:10px;border-bottom:1px solid rgba(49,95,66,.1);text-decoration:none;text-align:center;color:#617063;font:700 8px var(--ritual);letter-spacing:.12em}
+.error{font-size:11px;color:#9f4d3d;margin-top:12px;text-align:center}
+
+.finalePanel{padding-block:42px}
+.secondaryButton{margin-top:24px}
+
+.passCard{width:min(92vw,620px);min-height:580px;padding:38px 34px;text-align:center;border-radius:34px;border:1px solid rgba(255,255,255,.9);background:linear-gradient(150deg,#fffaf0,#efe2cb 70%,color-mix(in srgb,var(--role) 16%,#efe2cb));box-shadow:0 45px 150px rgba(53,42,25,.28);position:relative;overflow:hidden}
+.passCard::before{content:"";position:absolute;inset:12px;border:1px solid rgba(183,121,67,.18);border-radius:25px;pointer-events:none}
+.passCard small{display:block;margin-top:24px;font:700 8px var(--ritual);letter-spacing:.16em;color:#887555}
+.passCard h2{margin:10px 0 14px;font:600 clamp(42px,7vw,68px)/1 var(--serif);color:var(--forest)}
+.passAnimal{display:grid;gap:3px;margin:20px auto 12px;padding:16px;width:min(100%,360px);border-radius:20px;background:rgba(255,255,255,.45)}
+.passAnimal strong{font:600 28px var(--serif);color:var(--role)}
+.passAnimal span{font:700 8px var(--ritual);letter-spacing:.11em;color:var(--forest)}
+.passCard>p:not(.kicker){font:700 9px var(--ritual);letter-spacing:.1em;color:#6b725f}
+.passMeta{margin:28px 0;font:700 8px var(--ritual);letter-spacing:.15em;color:#8c7451}
+.passActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.passActions button{background:rgba(255,255,255,.55);color:var(--forest);border:1px solid rgba(49,95,66,.12)}
+.passCard>.primary{width:100%}
+
+@media(max-width:800px){
+  .scene{padding:12vh 5vw}
+  .panel{padding:28px 24px;border-radius:26px}
+  .calendarGrid{grid-template-columns:1fr}
+  .details div{grid-template-columns:1fr;gap:6px}
+}
+
+@media(max-width:600px){
+  .gateGlass{padding:34px 22px;border-radius:28px}
+  .gateGlass h1{font-size:47px}
+  .wildOne{font-size:64px}
+  .panel h3{font-size:42px}
+  .countdown{grid-template-columns:repeat(2,1fr)}
+  .choice{grid-template-columns:1fr}
+  .roleChip{max-width:170px;padding:9px 11px}
+  .roleChip b{font-size:12px}
+  .hudActions button{padding:0 9px;font-size:7px}
+  .trailHud{right:9px}
+  .revealCard{padding:34px 22px}
+  .passCard{padding:34px 22px}
+  .passActions{grid-template-columns:1fr}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .primary,.secondaryButton,.calendarGrid button,.passActions button{transition:none}
+}
