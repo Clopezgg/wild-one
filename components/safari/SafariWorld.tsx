@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { Expedition, JourneyStep } from "@/lib/types";
-import SafariWorldPremium from "./SafariWorldPremium";
+import SafariWorldOfficial from "./SafariWorldOfficial";
 
 type Props = {
   expedition: Expedition;
@@ -14,11 +14,10 @@ type Props = {
 };
 
 /**
- * Production always receives the full premium R3F world. Automated browser
- * runners intentionally keep the accessible journey/UI path lightweight so
- * Playwright can exercise interaction, persistence and WebKit behavior
- * without a software-GPU renderer starving the browser process. The premium
- * engine itself is still compiled and typechecked in every QA run.
+ * Real visitors receive the official Juan Alexander event-garden world.
+ * Automated browser runners use a lightweight canvas placeholder so the
+ * interaction/persistence/WebKit journeys remain deterministic without a
+ * software GPU starving the browser process.
  */
 export default function SafariWorld(props: Props) {
   const [automation, setAutomation] = useState<boolean | null>(null);
@@ -26,5 +25,5 @@ export default function SafariWorld(props: Props) {
 
   if (automation === null) return <div className="world-canvas world-canvas--warming" aria-hidden="true" />;
   if (automation) return <div className="world-canvas world-canvas--qa" aria-hidden="true" data-quality="QA" />;
-  return <SafariWorldPremium {...props} />;
+  return <SafariWorldOfficial {...props} />;
 }
