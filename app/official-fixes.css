@@ -1,0 +1,13 @@
+/* Final mobile/accessibility corrections for the official Juan Alexander invitation. */
+@media (max-width: 480px) {
+  .official-controls .official-map-button {
+    display: block;
+    max-width: 118px;
+    padding-inline: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: .52rem;
+    letter-spacing: .08em;
+  }
+}
