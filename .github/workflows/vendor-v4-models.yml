@@ -1,0 +1,54 @@
+name: Vendor V4 safari models
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  vendor-models:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download models into the project
+        run: |
+          set -euo pipefail
+          mkdir -p public/v4/models
+          ROOT='https://raw.githubusercontent.com/xiaojilele-glitch/WhyBuddy/main/client/public/kenney_cube-pets_1.0/Models/GLB%20format'
+          curl -fL --retry 3 "$ROOT/animal-lion.glb" -o public/v4/models/animal-lion.glb
+          curl -fL --retry 3 "$ROOT/animal-elephant.glb" -o public/v4/models/animal-elephant.glb
+          curl -fL --retry 3 "$ROOT/animal-giraffe.glb" -o public/v4/models/animal-giraffe.glb
+          curl -fL --retry 3 "$ROOT/animal-monkey.glb" -o public/v4/models/animal-monkey.glb
+          curl -fL --retry 3 "$ROOT/animal-parrot.glb" -o public/v4/models/animal-parrot.glb
+          curl -fL --retry 3 "$ROOT/animal-tiger.glb" -o public/v4/models/animal-tiger.glb
+          curl -fL --retry 3 "$ROOT/animal-cow.glb" -o public/v4/models/animal-cow.glb
+          curl -fL --retry 3 'https://raw.githubusercontent.com/definitelynico/godot-audiogen-demo/main/godot-example-scene/assets/models/Horse.glb' -o public/v4/models/Horse.glb
+
+      - name: Point V4 to same-origin models
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('public/v4/index.html')
+          s=p.read_text()
+          s=s.replace("const KENNEY='https://raw.githubusercontent.com/xiaojilele-glitch/WhyBuddy/main/client/public/kenney_cube-pets_1.0/Models/GLB%20format/';", "const KENNEY='/v4/models/';")
+          s=s.replace("const HORSE='https://raw.githubusercontent.com/definitelynico/godot-audiogen-demo/main/godot-example-scene/assets/models/Horse.glb';", "const HORSE='/v4/models/Horse.glb';")
+          p.write_text(s)
+          PY
+
+      - name: Commit vendored models
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/v4/index.html public/v4/models
+          if git diff --cached --quiet; then
+            echo "Nothing to commit"
+            exit 0
+          fi
+          git commit -m "fix: serve V4 safari models from same origin"
+          git push
