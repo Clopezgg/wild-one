@@ -88,8 +88,8 @@ async function getOrCreate(token: string, locale: "en" | "es") {
   return publicExpedition(created, token);
 }
 
-function responseWithCookie(body: unknown, token: string) {
-  const response = NextResponse.json(body);
+function responseWithCookie(body: unknown, token: string, init?: ResponseInit) {
+  const response = NextResponse.json(body, init);
   response.cookies.set(COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -114,9 +114,25 @@ export async function GET(request: Request) {
 export async function PATCH(request: Request) {
   const parsed = expeditionPatchSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid expedition update" }, { status: 400 });
-  const token = (await cookies()).get(COOKIE)?.value;
-  if (!token) return NextResponse.json({ error: "Expedition not found" }, { status: 401 });
-  if (!hasExpeditionStore) return NextResponse.json({ saved: false, localOnly: true });
+
+  const jar = await cookies();
+  const existingToken = jar.get(COOKIE)?.value;
+  const token = existingToken ?? newGuestToken();
+  const locale = parsed.data.locale ?? "en";
+
+  // A guest can interact before the initial GET has finished setting its cookie
+  // on a slow/mobile connection. Treat that as a first-touch expedition instead
+  // of returning 401 so language, leaf and calendar actions remain fail-open.
+  if (!existingToken) {
+    try {
+      await getOrCreate(token, locale);
+    } catch {
+      return responseWithCookie({ saved: false, localOnly: true }, token);
+    }
+  }
+
+  if (!hasExpeditionStore) return responseWithCookie({ saved: false, localOnly: true }, token);
+
   const leaves = parsed.data.leaves ? [...new Set(parsed.data.leaves)].sort() : undefined;
   const patch = {
     ...(parsed.data.locale && { locale: parsed.data.locale }),
@@ -126,19 +142,20 @@ export async function PATCH(request: Request) {
     ...(parsed.data.calendarSaved !== undefined && { calendar_saved: parsed.data.calendarSaved }),
     last_seen_at: new Date().toISOString(),
   };
+
   try {
     if (!hasDirectSupabase) {
       await expeditionEdgeRequest({ action: "update", token, patch: parsed.data });
-      return NextResponse.json({ saved: true });
+      return responseWithCookie({ saved: true }, token);
     }
     await supabaseRequest(`wild_one_guest_expeditions?guest_token_hash=eq.${tokenHash(token)}`, {
       method: "PATCH",
       headers: { Prefer: "return=minimal" },
       body: JSON.stringify(patch),
     });
-    return NextResponse.json({ saved: true });
+    return responseWithCookie({ saved: true }, token);
   } catch {
-    return NextResponse.json({ saved: false }, { status: 503 });
+    return responseWithCookie({ saved: false }, token, { status: 503 });
   }
 }
 
