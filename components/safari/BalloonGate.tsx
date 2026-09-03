@@ -1,60 +1,105 @@
 "use client";
 
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-const balloons: Array<[number, number, number, number, string, number]> = [
-  [-4.6, 1.0, 0.2, 0.72, "#788b61", -0.15], [-4.8, 2.0, -0.1, 0.88, "#e8ddc7", 0.08], [-4.35, 3.0, 0.18, 0.66, "#aa7748", -0.1],
-  [-4.68, 4.0, -0.2, 0.92, "#a2aa7d", 0.14], [-4.1, 4.85, 0.2, 0.7, "#f0e6d0", -0.15], [-3.58, 5.55, -0.1, 0.82, "#836342", 0.12],
-  [-2.72, 6.0, 0.12, 0.72, "#8f9b68", -0.2], [-1.82, 6.38, -0.14, 0.9, "#eadcc1", 0.12], [-0.82, 6.58, 0.1, 0.7, "#c28b50", -0.1],
-  [0.18, 6.66, -0.08, 0.94, "#8c9869", 0.08], [1.2, 6.5, 0.15, 0.74, "#f1e7d4", -0.18], [2.15, 6.17, -0.12, 0.88, "#9c6b40", 0.14],
-  [3.1, 5.75, 0.16, 0.68, "#9ca47b", -0.14], [3.86, 5.12, -0.16, 0.88, "#e9dcc5", 0.1], [4.38, 4.28, 0.16, 0.68, "#bb8050", -0.1],
-  [4.68, 3.25, -0.16, 0.91, "#77875c", 0.12], [4.85, 2.16, 0.14, 0.7, "#eadcc4", -0.08], [4.65, 1.1, -0.1, 0.86, "#98704e", 0.1],
-  [-3.85, 2.35, 0.58, 0.55, "#c38c4f", 0.22], [-3.65, 4.1, 0.55, 0.58, "#6e7c55", -0.18], [-2.4, 5.45, 0.56, 0.54, "#eee3ce", 0.2],
-  [-0.3, 6.08, 0.58, 0.6, "#a87344", -0.18], [1.75, 5.75, 0.55, 0.55, "#79875b", 0.2], [3.55, 4.45, 0.58, 0.63, "#e7d8bb", -0.18],
-  [3.95, 2.65, 0.54, 0.52, "#bd8450", 0.18], [-4.0, 1.35, 0.62, 0.48, "#e9ddc7", -0.2], [4.05, 1.32, 0.6, 0.5, "#869367", 0.15],
-];
+type BalloonSpec = {
+  p: [number, number, number];
+  s: number;
+  color: string;
+  squash?: number;
+  giraffe?: boolean;
+  seed: number;
+};
 
-function Balloon({ item, entered }: { item: (typeof balloons)[number]; entered: boolean }) {
-  const ref = useRef<THREE.Mesh>(null);
-  const [x, y, z, size, color, tilt] = item;
-  useFrame((state) => {
-    if (!ref.current) return;
-    const ripple = entered ? Math.max(0, 1.3 - Math.abs(state.camera.position.z - z)) : 0;
-    ref.current.rotation.z = tilt + Math.sin(state.clock.elapsedTime * 0.7 + x) * 0.018 + ripple * 0.03 * Math.sign(x || 1);
+const palette = ["#83916d", "#9aa47d", "#efe3cb", "#e7d6b8", "#b87c4b", "#8b6447", "#6f513d"];
+
+function buildArch(): BalloonSpec[] {
+  const specs: BalloonSpec[] = [];
+  let seed = 1;
+  const push = (x: number, y: number, z: number, s: number, color: string, giraffe = false, squash = 1) => {
+    specs.push({ p: [x, y, z], s, color, giraffe, squash, seed: seed++ });
+  };
+
+  // Dense asymmetric columns: deliberately irregular, like a premium event install.
+  const left = [
+    [-5.05,.7,.18,.9],[-4.72,1.55,-.08,.72],[-5.08,2.22,.28,1.02],[-4.56,3.04,-.18,.7],[-4.92,3.78,.14,.92],[-4.32,4.55,.35,.66],[-4.38,5.16,-.2,.92],[-3.74,5.72,.24,.72],[-3.15,6.18,-.12,.88],[-2.38,6.52,.15,.67],[-1.55,6.78,-.15,.91],[-.72,6.96,.18,.62]
+  ];
+  const right = [
+    [5.02,.72,.1,.82],[4.76,1.48,-.18,1.02],[5.06,2.38,.22,.68],[4.55,3.13,.42,.84],[4.88,3.92,-.1,.67],[4.36,4.64,.18,.94],[3.82,5.32,-.22,.66],[3.12,5.84,.25,.82],[2.32,6.28,-.1,.68],[1.48,6.58,.18,.88],[.62,6.76,-.12,.64]
+  ];
+  [...left, ...right].forEach((v, index) => {
+    const [x,y,z,s] = v as number[];
+    const color = palette[(index * 3 + 2) % palette.length];
+    push(x,y,z,s,color,index % 8 === 4, index % 4 === 0 ? 1.14 : .96);
   });
-  return (
-    <mesh ref={ref} position={[x, y, z]} scale={[size * 0.9, size * 1.08, size * 0.9]} castShadow>
-      <sphereGeometry args={[0.75, 28, 22]} />
-      <meshPhysicalMaterial color={color} roughness={0.28} clearcoat={0.42} clearcoatRoughness={0.36} />
+
+  // Secondary clusters create depth instead of a single mathematical ring.
+  [
+    [-4.25,1.18,.72,.55],[-4.02,2.64,.76,.48],[-3.92,4.24,.68,.62],[-3.0,5.58,.72,.5],[-1.95,6.2,.66,.48],[-.12,6.42,.7,.58],
+    [4.23,1.14,.7,.58],[4.0,2.75,.72,.52],[3.82,4.2,.72,.58],[2.95,5.5,.66,.48],[1.78,6.12,.7,.54],[.92,6.35,.68,.48]
+  ].forEach((v,index) => {
+    const [x,y,z,s] = v as number[];
+    push(x,y,z,s,palette[(index+4)%palette.length], index === 3 || index === 8, 1.05);
+  });
+
+  // Tiny filler balloons make the installation read as hand-composed.
+  for (let i=0;i<18;i+=1) {
+    const side = i % 2 ? 1 : -1;
+    const t = (i % 9) / 8;
+    const y = .9 + t * 5.35;
+    const x = side * (4.55 - Math.sin(t * Math.PI) * 1.1 + (i%3)*.12);
+    push(x,y,1.0 + (i%2)*.15,.28 + (i%4)*.045,palette[(i+1)%palette.length],false,1.08);
+  }
+  return specs;
+}
+
+const balloons = buildArch();
+
+function GiraffeSpots({ scale }: { scale: number }) {
+  const spots = useMemo(() => [
+    [-.28,.22,.62,.13],[.19,.31,.65,.11],[.31,-.12,.64,.09],[-.12,-.29,.66,.12],[.03,.02,.72,.1]
+  ] as const, []);
+  return <>{spots.map((spot,index)=><mesh key={index} position={[spot[0]*scale,spot[1]*scale,spot[2]*scale]} scale={spot[3]*scale}><sphereGeometry args={[1,14,10]}/><meshStandardMaterial color="#735039" roughness={.52}/></mesh>)}</>;
+}
+
+function Balloon({ spec, entered }: { spec: BalloonSpec; entered: boolean }) {
+  const ref = useRef<THREE.Group>(null);
+  const phase = spec.seed * .71;
+  useFrame((state,delta)=>{
+    if(!ref.current) return;
+    const t = state.clock.elapsedTime;
+    const portalPulse = entered ? Math.max(0,1.6-Math.abs(state.camera.position.z-2)) : 0;
+    ref.current.rotation.z = Math.sin(t*.48+phase)*.018 + portalPulse*Math.sign(spec.p[0]||1)*.02;
+    ref.current.rotation.y += delta*.004*Math.sign(spec.p[0]||1);
+  });
+  return <group ref={ref} position={spec.p}>
+    <mesh scale={[spec.s*.88,spec.s*1.08*(spec.squash??1),spec.s*.84]} castShadow>
+      <sphereGeometry args={[.78,28,22]}/>
+      <meshPhysicalMaterial color={spec.giraffe ? "#d6ab68" : spec.color} roughness={.25} clearcoat={.6} clearcoatRoughness={.25} sheen={.25} sheenColor="#fff0d0"/>
     </mesh>
-  );
+    {spec.giraffe && <GiraffeSpots scale={spec.s}/>} 
+    <mesh position={[0,spec.s*1.02,-spec.s*.05]} scale={spec.s*.12}><sphereGeometry args={[.32,12,8]}/><meshBasicMaterial color="#fff7e8" transparent opacity={.28}/></mesh>
+  </group>;
 }
 
-function LeafFan({ position, rotation = 0, scale = 1 }: { position: [number, number, number]; rotation?: number; scale?: number }) {
-  return (
-    <group position={position} rotation={[0, 0, rotation]} scale={scale}>
-      {[-0.7, 0, 0.7].map((angle) => (
-        <mesh key={angle} rotation={[0.2, angle, angle * 0.55]} position={[Math.sin(angle) * 0.55, Math.cos(angle) * 0.32, 0]} scale={[0.42, 1.25, 0.14]}>
-          <sphereGeometry args={[0.7, 18, 12]} />
-          <meshStandardMaterial color={angle === 0 ? "#315b3e" : "#446d49"} roughness={0.72} />
-        </mesh>
-      ))}
-    </group>
-  );
+function PalmFrond({ position, rotation=0, scale=1, dark=false }: { position:[number,number,number]; rotation?:number; scale?:number; dark?:boolean }) {
+  return <group position={position} rotation={[0,0,rotation]} scale={scale}>
+    <mesh rotation={[0,0,.04]} scale={[.08,1.55,.08]}><capsuleGeometry args={[.5,1.7,6,10]}/><meshStandardMaterial color="#355b3e" roughness={.9}/></mesh>
+    {[-1.05,-.7,-.35,0,.35,.7,1.05].map((a,index)=><mesh key={a} position={[Math.sin(a)*.72,Math.cos(a)*.35,0]} rotation={[.1,a,a*.55]} scale={[.38,1.15-(Math.abs(index-3)*.06),.11]} castShadow><sphereGeometry args={[.66,16,10]}/><meshStandardMaterial color={dark ? "#254a35" : index%2 ? "#3f704b" : "#547e55"} roughness={.76}/></mesh>)}
+  </group>;
 }
 
-export function BalloonGate({ entered }: { entered: boolean }) {
-  return (
-    <group position={[0, 0, 1.2]}>
-      {balloons.map((item, index) => <Balloon key={index} item={item} entered={entered} />)}
-      <LeafFan position={[-4.85, 0.72, 0.55]} rotation={-0.35} scale={1.1} />
-      <LeafFan position={[4.85, 0.72, 0.55]} rotation={0.35} scale={1.1} />
-      <group position={[-2.2, 6.05, 0.66]} rotation={[0, 0, -0.25]}>
-        {[0, 1, 2, 3, 4].map((i) => <mesh key={i} position={[Math.sin(i * 1.2) * 0.28, Math.cos(i * 1.2) * 0.28, 0.05]} scale={0.09 + (i % 2) * 0.025}><sphereGeometry args={[1, 16, 12]} /><meshStandardMaterial color="#84532e" /></mesh>)}
-      </group>
-    </group>
-  );
+export function BalloonGate({ entered }: { entered:boolean }) {
+  return <group position={[0,0,1.25]}>
+    {balloons.map((spec,index)=><Balloon key={index} spec={spec} entered={entered}/>)}
+    <PalmFrond position={[-5.1,.65,.9]} rotation={-.5} scale={1.35} dark/>
+    <PalmFrond position={[-4.55,3.8,1.0]} rotation={-.9} scale={.92}/>
+    <PalmFrond position={[5.05,.65,.9]} rotation={.5} scale={1.35} dark/>
+    <PalmFrond position={[4.55,3.9,1.0]} rotation={.9} scale={.92}/>
+    <PalmFrond position={[-2.85,6.1,.94]} rotation={-1.25} scale={.75}/>
+    <PalmFrond position={[2.75,6.08,.94]} rotation={1.25} scale={.72}/>
+    <pointLight position={[0,4.8,2.8]} color="#ffe6ad" intensity={entered?7:10} distance={13}/>
+  </group>;
 }
-
