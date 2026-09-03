@@ -28,8 +28,9 @@ function supportsWebGL() {
 export default function SafariWorld(props: Props) {
   const [mode, setMode] = useState<"loading" | "qa" | "webgl" | "fallback">("loading");
   useEffect(() => {
-    if (navigator.webdriver) setMode("qa");
-    else setMode(supportsWebGL() ? "webgl" : "fallback");
+    if (!supportsWebGL()) setMode("fallback");
+    else if (navigator.webdriver) setMode("qa");
+    else setMode("webgl");
   }, []);
 
   if (mode === "loading") return <div className="world-canvas world-canvas--warming" aria-hidden="true" />;
