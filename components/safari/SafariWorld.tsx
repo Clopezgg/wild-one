@@ -2,7 +2,7 @@
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { ContactShadows, Float, PerformanceMonitor, Sparkles } from "@react-three/drei";
-import { Bloom, EffectComposer } from "@react-three/postprocessing";
+import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
 import { Suspense, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import type { Expedition, JourneyStep } from "@/lib/types";
@@ -10,219 +10,119 @@ import { roleForKey } from "@/lib/safariRoles";
 import { BalloonGate } from "./BalloonGate";
 import { SoftSafariAnimal } from "./SoftSafariAnimals";
 
-const cameraStops: Record<JourneyStep, [number, number, number, number, number, number]> = {
-  ENTER: [0, 3.2, 14, 0, 2.5, 0],
-  ANIMAL_REVEAL: [0, 2.8, -4, 0, 1.8, -10],
-  MAP: [-1.8, 5.4, -14, 0, 1.6, -22],
-  TRAIL: [1.2, 3.2, -27, 0, 1.5, -35],
-  CELEBRATION: [-1, 3.4, -39, 0, 1.8, -47],
-  COORDINATES: [1.8, 3.2, -51, 0, 1.7, -59],
-  SAFARI_CHIC: [-1.8, 3.0, -63, 0, 1.5, -71],
-  CALENDAR: [0, 3.6, -76, 0, 2, -84],
-  COUNTDOWN: [0, 3.2, -88, 0, 2, -96],
-  QUEST: [1.2, 3.1, -101, 0, 1.8, -109],
-  RSVP: [-1.1, 3.0, -114, 0, 1.6, -122],
-  PASS: [0, 3.3, -127, 0, 2, -135],
-  FINALE: [0, 3.5, -142, 0, 2.5, -151],
+const cameraStops: Record<JourneyStep, [number,number,number,number,number,number]> = {
+  ENTER:[0,3.15,14.5,0,2.7,.1], ANIMAL_REVEAL:[0,2.85,-4.5,0,1.9,-10.4], MAP:[-1.2,5,-14.5,0,1.7,-22], TRAIL:[1.1,3.15,-27,0,1.45,-35],
+  CELEBRATION:[-.8,3.35,-39,0,1.8,-47], COORDINATES:[1.55,3.1,-51,0,1.65,-59], SAFARI_CHIC:[-1.45,3,-63,0,1.55,-71], CALENDAR:[0,3.55,-76,0,2,-84],
+  COUNTDOWN:[0,3.15,-88,0,1.95,-96], QUEST:[1.05,3.05,-101,0,1.8,-109], RSVP:[-1,3,-114,0,1.65,-122], PASS:[0,3.25,-127,0,2,-135], FINALE:[0,3.4,-142,0,2.45,-151]
 };
 
-function CameraJourney({ step, reducedMotion }: { step: JourneyStep; reducedMotion: boolean }) {
-  const { camera } = useThree();
-  const position = useMemo(() => new THREE.Vector3(), []);
-  const look = useMemo(() => new THREE.Vector3(), []);
-  useFrame((_, delta) => {
-    const stop = cameraStops[step];
-    position.set(stop[0], stop[1], stop[2]);
-    look.set(stop[3], stop[4], stop[5]);
-    const ease = reducedMotion ? 1 : 1 - Math.pow(0.002, delta);
-    camera.position.lerp(position, ease);
-    const current = new THREE.Vector3();
-    camera.getWorldDirection(current).multiplyScalar(8).add(camera.position);
-    current.lerp(look, ease);
-    camera.lookAt(current);
-  });
+function CameraJourney({step,reducedMotion}:{step:JourneyStep;reducedMotion:boolean}){
+  const {camera}=useThree();
+  const pos=useMemo(()=>new THREE.Vector3(),[]); const look=useMemo(()=>new THREE.Vector3(),[]); const currentLook=useMemo(()=>new THREE.Vector3(0,2,0),[]);
+  useFrame((_,delta)=>{const s=cameraStops[step];pos.set(s[0],s[1],s[2]);look.set(s[3],s[4],s[5]);const ease=reducedMotion?1:1-Math.pow(.0018,delta);camera.position.lerp(pos,ease);currentLook.lerp(look,ease*.9);camera.lookAt(currentLook)});
   return null;
 }
 
-function Ground() {
-  return (
-    <>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.08, -76]} receiveShadow>
-        <planeGeometry args={[34, 180]} />
-        <meshStandardMaterial color="#a99870" roughness={0.95} />
-      </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.04, -75]} receiveShadow>
-        <planeGeometry args={[5.3, 174]} />
-        <meshStandardMaterial color="#d6bf91" roughness={0.92} />
-      </mesh>
-    </>
-  );
+function SunGlow(){
+  return <group position={[-7,10,-10]}>
+    <mesh><sphereGeometry args={[2.4,24,18]}/><meshBasicMaterial color="#ffe9b7" transparent opacity={.19}/></mesh>
+    <pointLight color="#ffe3aa" intensity={15} distance={34}/>
+  </group>
 }
 
-function TropicalLeaf({ position, scale = 1, dark = false }: { position: [number, number, number]; scale?: number; dark?: boolean }) {
-  const ref = useRef<THREE.Group>(null);
-  useFrame((state) => { if (ref.current) ref.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.6 + position[2]) * 0.035; });
-  return (
-    <group ref={ref} position={position} scale={scale}>
-      <mesh rotation={[0.15, 0, -0.28]} scale={[0.72, 1.8, 0.16]} castShadow><sphereGeometry args={[0.72, 18, 12]} /><meshStandardMaterial color={dark ? "#214c35" : "#4c7650"} roughness={0.75} /></mesh>
-      <mesh position={[0.65, 0.12, -0.05]} rotation={[0.1, 0.2, 0.38]} scale={[0.52, 1.4, 0.14]} castShadow><sphereGeometry args={[0.7, 18, 12]} /><meshStandardMaterial color={dark ? "#2c5b3d" : "#64875a"} roughness={0.74} /></mesh>
-    </group>
-  );
+function Ground(){return <>
+  <mesh rotation={[-Math.PI/2,0,0]} position={[0,-.12,-76]} receiveShadow><planeGeometry args={[36,186]}/><meshStandardMaterial color="#9d9f76" roughness={1}/></mesh>
+  <mesh rotation={[-Math.PI/2,0,0]} position={[0,-.07,-75]} receiveShadow><planeGeometry args={[5.6,178]}/><meshStandardMaterial color="#d2ba8f" roughness={.95}/></mesh>
+  <mesh rotation={[-Math.PI/2,0,0]} position={[0,-.04,-75]}><planeGeometry args={[2.5,178]}/><meshStandardMaterial color="#e1cca1" roughness={.96}/></mesh>
+</>}
+
+function Leaf({position,scale=1,color="#4e7950",rotation=0}:{position:[number,number,number];scale?:number;color?:string;rotation?:number}){
+  const ref=useRef<THREE.Group>(null);
+  useFrame((s)=>{if(ref.current)ref.current.rotation.z=rotation+Math.sin(s.clock.elapsedTime*.45+position[2])*.035});
+  return <group ref={ref} position={position} rotation={[0,0,rotation]} scale={scale}>
+    <mesh scale={[.44,1.45,.11]} rotation={[.12,0,-.12]} castShadow><sphereGeometry args={[.72,18,12]}/><meshStandardMaterial color={color} roughness={.78}/></mesh>
+    <mesh position={[.48,.02,-.03]} scale={[.33,1.08,.09]} rotation={[.08,.22,.38]} castShadow><sphereGeometry args={[.72,16,10]}/><meshStandardMaterial color="#648b5d" roughness={.78}/></mesh>
+  </group>
 }
 
-function Foliage() {
-  const leaves = useMemo(() => Array.from({ length: 54 }, (_, i) => ({
-    x: (i % 2 ? 1 : -1) * (5.2 + ((i * 17) % 35) / 10),
-    y: 0.55 + ((i * 23) % 28) / 10,
-    z: 4 - i * 3.05,
-    s: 0.65 + (i % 5) * 0.14,
-  })), []);
-  return <>{leaves.map((leaf, i) => <TropicalLeaf key={i} position={[leaf.x, leaf.y, leaf.z]} scale={leaf.s} dark={i % 3 === 0} />)}</>;
+function Foliage(){const leaves=useMemo(()=>Array.from({length:70},(_,i)=>({x:(i%2?1:-1)*(5.15+((i*17)%27)/10),y:.5+((i*23)%30)/10,z:6-i*2.65,s:.56+(i%6)*.11,r:(i%2?1:-1)*(.15+(i%4)*.06),c:i%4===0?"#294f38":i%3===0?"#3b6946":"#557d52"})),[]);return <>{leaves.map((l,i)=><Leaf key={i} position={[l.x,l.y,l.z]} scale={l.s} rotation={l.r} color={l.c}/>)}</>}
+
+function Plinth({position,color="#e6d7bd",scale=1}:{position:[number,number,number];color?:string;scale?:number}){
+  return <group position={position} scale={scale}><mesh position={[0,.55,0]} castShadow receiveShadow><cylinderGeometry args={[1.2,1.34,1.1,48]}/><meshStandardMaterial color={color} roughness={.58}/></mesh><mesh position={[0,1.13,0]} castShadow><cylinderGeometry args={[1.1,1.18,.08,48]}/><meshPhysicalMaterial color="#fff5e2" roughness={.25} clearcoat={.35}/></mesh></group>
 }
 
-function Stage({ z, finale = false }: { z: number; finale?: boolean }) {
-  return (
-    <group position={[0, 0, z]}>
-      <mesh position={[0, 2.5, -1.4]} scale={[5.4, 3.6, 0.32]} castShadow><boxGeometry /><meshStandardMaterial color={finale ? "#69805b" : "#e4d3b4"} roughness={0.62} /></mesh>
-      <mesh position={[0, 0.45, 0]} scale={[2.2, 0.34, 1.55]} castShadow><cylinderGeometry args={[1, 1.08, 1, 48]} /><meshStandardMaterial color="#9b6941" roughness={0.82} /></mesh>
-      <mesh position={[0, 1.32, 0]} scale={[0.85, 1.1, 0.85]} castShadow><cylinderGeometry args={[1, 1, 1, 48]} /><meshPhysicalMaterial color="#f0e5cf" roughness={0.32} clearcoat={0.3} /></mesh>
-      <mesh position={[0, 2.35, 0]} scale={[0.42, 1.15, 0.42]} castShadow><boxGeometry /><meshPhysicalMaterial color="#c9a259" metalness={0.2} roughness={0.28} /></mesh>
-      {[-2.2, 2.4].map((x, i) => <mesh key={x} position={[x, 0.55, i ? 0.2 : -0.25]} scale={[0.76, 0.76, 0.76]} rotation={[0, i ? 0.25 : -0.22, 0]} castShadow><boxGeometry /><meshStandardMaterial color={i ? "#7f9367" : "#c58b54"} roughness={0.6} /></mesh>)}
-    </group>
-  );
+function CakeAndOne({z=-2,golden=false}:{z?:number;golden?:boolean}){
+  return <group position={[0,0,z]}>
+    <Plinth position={[0,0,0]} scale={.95}/>
+    <mesh position={[0,1.63,0]} castShadow><cylinderGeometry args={[.8,.82,.82,48]}/><meshPhysicalMaterial color="#f7ead2" roughness={.28} clearcoat={.25}/></mesh>
+    <mesh position={[0,2.28,0]} castShadow><cylinderGeometry args={[.57,.6,.5,48]}/><meshPhysicalMaterial color="#fff6e4" roughness={.24} clearcoat={.3}/></mesh>
+    <mesh position={[0,3.15,0]} scale={[.38,1.12,.32]} castShadow><boxGeometry/><meshPhysicalMaterial color={golden?"#f1cc71":"#d6aa57"} roughness={.22} metalness={.28} clearcoat={.6}/></mesh>
+    <mesh position={[-.98,.48,.5]} rotation={[0,.35,0]} castShadow><boxGeometry args={[.9,.72,.86]}/><meshStandardMaterial color="#788b64" roughness={.55}/></mesh>
+    <mesh position={[1.05,.42,.35]} rotation={[0,-.25,0]} castShadow><boxGeometry args={[.78,.65,.76]}/><meshStandardMaterial color="#b67849" roughness={.58}/></mesh>
+    <mesh position={[1.05,.78,.35]} scale={[.08,.82,.08]}><boxGeometry/><meshStandardMaterial color="#e3ca8d"/></mesh><mesh position={[1.05,.78,.35]} scale={[.86,.08,.08]}><boxGeometry/><meshStandardMaterial color="#e3ca8d"/></mesh>
+  </group>
 }
 
-function Terrain({ terrain }: { terrain: ReturnType<typeof roleForKey>["terrain"] }) {
-  if (terrain === "water") return <group position={[0, 0.02, -33]}><mesh rotation={[-Math.PI / 2, 0, 0]} scale={[4.8, 8, 1]}><circleGeometry args={[1, 48]} /><meshPhysicalMaterial color="#729e95" roughness={0.12} metalness={0.05} transmission={0.18} /></mesh>{[-2.2, 2.1].map((x) => <mesh key={x} position={[x, 0.38, -1]} scale={[1.1, 0.45, 0.8]}><dodecahedronGeometry /><meshStandardMaterial color="#7c806f" roughness={0.9} /></mesh>)}</group>;
-  if (terrain === "canopy") return <group position={[0, 2.2, -34]}>{[-4, -2, 0, 2, 4].map((x, i) => <mesh key={x} position={[x, Math.sin(i) * 0.2, 0]} scale={[0.82, 0.18, 2]}><boxGeometry /><meshStandardMaterial color="#7a5438" roughness={0.9} /></mesh>)}</group>;
-  if (terrain === "echo") return <group position={[0, 0.4, -34]}>{Array.from({ length: 16 }, (_, i) => <mesh key={i} position={[(i % 2 ? 1 : -1) * (2.6 + (i % 4) * 0.55), (i % 3) * 0.25, -i * 0.55]} scale={0.2 + (i % 3) * 0.05}><sphereGeometry args={[1, 16, 12]} /><meshStandardMaterial color={i % 2 ? "#d49e76" : "#efe0a5"} /></mesh>)}</group>;
-  if (terrain === "stripe") return <group position={[0, 0.01, -34]}>{Array.from({ length: 12 }, (_, i) => <mesh key={i} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, -i * 1.2]} scale={[2.3, 0.38, 1]}><planeGeometry /><meshStandardMaterial color={i % 2 ? "#ded7c7" : "#3a3934"} /></mesh>)}</group>;
-  if (terrain === "shadow") return <group position={[0, 0, -34]}>{[-3.8, -2.8, 2.8, 3.8].map((x, i) => <TropicalLeaf key={x} position={[x, 1 + i * 0.25, -i]} scale={1.75} dark />)}</group>;
-  if (terrain === "sky") return <group position={[0, 0, -34]}>{[-2, 0, 2].map((x, i) => <mesh key={x} position={[x, 0.35 + i * 0.32, -i]} scale={[1.3, 0.35, 1]}><dodecahedronGeometry /><meshStandardMaterial color="#aa9a79" roughness={0.9} /></mesh>)}</group>;
-  return <group position={[0, 0, -34]}>{[-3, -1.5, 1.5, 3].map((x, i) => <mesh key={x} position={[x, 0.28, -i * 0.8]} scale={[0.7, 0.42, 0.7]}><dodecahedronGeometry /><meshStandardMaterial color="#9f8055" roughness={0.94} /></mesh>)}</group>;
+function Backdrop({z=-3.8,finale=false}:{z?:number;finale?:boolean}){
+  return <group position={[0,0,z]}>
+    <mesh position={[0,3.15,0]} scale={[5.6,3.9,.22]} castShadow><boxGeometry/><meshStandardMaterial color={finale?"#728465":"#eadcc3"} roughness={.7}/></mesh>
+    <mesh position={[0,3.15,.24]} scale={[4.2,3.15,.05]}><boxGeometry/><meshStandardMaterial color={finale?"#7e906f":"#f5ead6"} roughness={.72}/></mesh>
+    <Leaf position={[-3.7,4.7,.42]} scale={1.1} rotation={-.6}/><Leaf position={[3.6,4.5,.42]} scale={1.05} rotation={.65}/>
+  </group>
 }
 
-function Observatory({ z }: { z: number }) {
-  const ring = useRef<THREE.Group>(null);
-  useFrame((_, delta) => { if (ring.current) ring.current.rotation.z += delta * 0.12; });
-  return (
-    <group position={[0, 2.4, z]} ref={ring}>
-      {[2.2, 2.75, 3.3].map((radius, i) => <mesh key={radius} rotation={[i * 0.55, i * 0.2, 0]}><torusGeometry args={[radius, 0.055 + i * 0.018, 12, 80]} /><meshPhysicalMaterial color="#cbaa63" metalness={0.68} roughness={0.26} emissive="#6b4c1e" emissiveIntensity={0.1} /></mesh>)}
-      <pointLight color="#ffd990" intensity={10} distance={10} />
-    </group>
-  );
+function IntroInstallation(){
+  return <group>
+    <Backdrop/><CakeAndOne/>
+    <Suspense fallback={null}>
+      <Float speed={.7} rotationIntensity={.035} floatIntensity={.08}><SoftSafariAnimal animal="giraffe" position={[-4.25,0,.15]} scale={.82}/></Float>
+      <Float speed={.9} rotationIntensity={.025} floatIntensity={.05}><SoftSafariAnimal animal="elephant" position={[3.55,0,.55]} scale={.7}/></Float>
+      <SoftSafariAnimal animal="lion" position={[1.65,0,-.9]} scale={.66}/>
+      <SoftSafariAnimal animal="zebra" position={[-2.15,0,-1.95]} scale={.59}/>
+      <Float speed={1.2} rotationIntensity={.08} floatIntensity={.16}><SoftSafariAnimal animal="monkey" position={[3.6,4.15,-.05]} scale={.48}/></Float>
+      <Float speed={1.35} rotationIntensity={.14} floatIntensity={.22}><SoftSafariAnimal animal="parrot" position={[2.5,4.85,.05]} rotation={[0,-.45,0]} scale={.41}/></Float>
+      <SoftSafariAnimal animal="leopard" position={[-3.5,0,-2.35]} scale={.5}/>
+    </Suspense>
+  </group>
 }
 
-function GoldenLeaf({ id, position, found, onFind }: { id: number; position: [number, number, number]; found: boolean; onFind: (id: number) => void }) {
-  const ref = useRef<THREE.Group>(null);
-  useFrame((state, delta) => {
-    if (!ref.current) return;
-    ref.current.rotation.y += delta * 0.65;
-    ref.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 1.7 + id) * 0.15;
-  });
-  if (found) return null;
-  return (
-    <group ref={ref} position={position} onClick={(event) => { event.stopPropagation(); onFind(id); }} onPointerOver={() => { document.body.style.cursor = "pointer"; }} onPointerOut={() => { document.body.style.cursor = ""; }}>
-      <mesh scale={[0.6, 1.08, 0.12]} rotation={[0.15, 0, -0.45]}>
-        <sphereGeometry args={[0.52, 24, 16]} />
-        <meshPhysicalMaterial color="#f2c75c" emissive="#b77718" emissiveIntensity={0.8} metalness={0.34} roughness={0.22} clearcoat={1} />
-      </mesh>
-      <pointLight color="#ffd36e" intensity={7} distance={4} />
-      <Sparkles count={12} scale={2.2} size={3} speed={0.4} color="#ffe29a" />
-    </group>
-  );
+function RouteLanterns(){return <>{Array.from({length:22},(_,i)=>{const side=i%2?1:-1;const z=-17-i*5.7;return <group key={i} position={[side*2.7,.05,z]}><mesh position={[0,.22,0]}><cylinderGeometry args={[.05,.06,.46,10]}/><meshStandardMaterial color="#77563d"/></mesh><mesh position={[0,.55,0]}><sphereGeometry args={[.12,14,10]}/><meshPhysicalMaterial color="#ffd88c" emissive="#b77525" emissiveIntensity={1.4}/></mesh><pointLight position={[0,.55,0]} color="#ffd792" intensity={2.2} distance={3.5}/></group>})}</>}
+
+function Terrain({terrain}:{terrain:ReturnType<typeof roleForKey>["terrain"]}){
+  if(terrain==="water")return <group position={[0,.02,-34]}><mesh rotation={[-Math.PI/2,0,0]} scale={[5,8,1]}><circleGeometry args={[1,60]}/><meshPhysicalMaterial color="#779f97" roughness={.12} transmission={.16}/></mesh>{[-2.4,2.2].map(x=><mesh key={x} position={[x,.35,-.8]} scale={[1.1,.45,.8]}><dodecahedronGeometry/><meshStandardMaterial color="#777b6c" roughness={.95}/></mesh>)}</group>;
+  if(terrain==="canopy")return <group position={[0,2.25,-34]}>{[-4,-2,0,2,4].map((x,i)=><mesh key={x} position={[x,Math.sin(i)*.18,0]} scale={[.84,.14,2.1]}><boxGeometry/><meshStandardMaterial color="#77523a" roughness={.92}/></mesh>)}</group>;
+  if(terrain==="echo")return <group position={[0,.45,-34]}>{Array.from({length:22},(_,i)=><mesh key={i} position={[(i%2?1:-1)*(2.4+(i%5)*.48),(i%3)*.22,-i*.46]} scale={.16+(i%4)*.035}><sphereGeometry args={[1,16,10]}/><meshStandardMaterial color={i%3===0?"#d39d7a":i%3===1?"#efe0a6":"#9aae72"}/></mesh>)}</group>;
+  if(terrain==="stripe")return <group position={[0,.012,-34]}>{Array.from({length:14},(_,i)=><mesh key={i} rotation={[-Math.PI/2,0,0]} position={[0,0,-i*1.05]} scale={[2.4,.35,1]}><planeGeometry/><meshStandardMaterial color={i%2?"#e4ded1":"#494943"}/></mesh>)}</group>;
+  if(terrain==="shadow")return <group position={[0,0,-34]}>{[-3.8,-2.8,2.8,3.8].map((x,i)=><Leaf key={x} position={[x,1+i*.25,-i]} scale={1.7} color="#244b36" rotation={x<0?-.4:.4}/>)}</group>;
+  if(terrain==="sky")return <group position={[0,0,-34]}>{[-2.2,0,2.2].map((x,i)=><mesh key={x} position={[x,.3+i*.28,-i]} scale={[1.2,.35,1]}><dodecahedronGeometry/><meshStandardMaterial color="#aaa07e" roughness={.92}/></mesh>)}</group>;
+  return <group position={[0,0,-34]}>{[-3,-1.5,1.5,3].map((x,i)=><mesh key={x} position={[x,.27,-i*.8]} scale={[.65,.4,.65]}><dodecahedronGeometry/><meshStandardMaterial color="#9c7f58" roughness={.95}/></mesh>)}</group>
 }
 
-function World({ expedition, step, entered, reducedMotion, quality, onLeaf }: { expedition: Expedition; step: JourneyStep; entered: boolean; reducedMotion: boolean; quality: "HIGH" | "MEDIUM" | "LOW"; onLeaf: (id: number) => void }) {
-  const role = roleForKey(expedition.animalKey);
-  const golden = expedition.leaves.length === 3;
-  return (
-    <>
-      <color attach="background" args={[golden ? "#f0d8a5" : "#c9dfcd"]} />
-      <fog attach="fog" args={[golden ? "#ead1a1" : "#c9d9c8", 18, quality === "LOW" ? 58 : 74]} />
-      <hemisphereLight color="#fff4d5" groundColor="#65745b" intensity={2.1} />
-      <directionalLight castShadow={quality !== "LOW"} color="#ffe2a1" intensity={3.2} position={[-6, 12, 8]} shadow-mapSize={[quality === "HIGH" ? 1536 : 768, quality === "HIGH" ? 1536 : 768]} />
-      <Ground />
-      <Foliage />
-      <BalloonGate entered={entered} />
-      <Stage z={-2} />
-      <Suspense fallback={null}>
-        <SoftSafariAnimal animal="giraffe" position={[-4.2, 0, -0.6]} scale={0.9} />
-        <SoftSafariAnimal animal="elephant" position={[3.55, 0, 0.2]} scale={0.72} />
-        <SoftSafariAnimal animal="lion" position={[1.75, 0, -1.0]} scale={0.68} />
-        <SoftSafariAnimal animal="zebra" position={[-2.2, 0, -2]} scale={0.62} />
-        <SoftSafariAnimal animal="monkey" position={[3.6, 4.25, -0.2]} scale={0.52} />
-        <SoftSafariAnimal animal="parrot" position={[2.7, 4.9, 0]} rotation={[0, -0.4, 0]} scale={0.45} />
-        <SoftSafariAnimal animal="leopard" position={[-3.6, 0, -2.2]} scale={0.55} />
-        <SoftSafariAnimal animal={expedition.animalKey} position={[0, 0, -10.5]} scale={0.92} active={step !== "ENTER"} />
-        <SoftSafariAnimal animal={expedition.animalKey} position={[2.4, 0, -30]} rotation={[0, -0.45, 0]} scale={0.62} />
-      </Suspense>
-      <Terrain terrain={role.terrain} />
-      {expedition.leaves.includes(1) && (
-        <Float speed={1.4} rotationIntensity={0.16} floatIntensity={0.25}>
-          <group position={[2.4, 2.1, -30]}>
-            <mesh rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[1.5, 0.045, 12, 72]} /><meshPhysicalMaterial color="#f2cd72" emissive="#a56c16" emissiveIntensity={0.55} metalness={0.6} /></mesh>
-            <Sparkles count={18} scale={4} size={2.4} speed={0.35} color="#ffe2a0" />
-          </group>
-        </Float>
-      )}
-      {expedition.leaves.includes(2) && (
-        <group position={[0, 2.8, -70]}>
-          {[2.1, 2.55].map((radius, index) => <mesh key={radius} rotation={[index * 0.7, index * 0.25, 0]}><torusGeometry args={[radius, 0.06, 12, 72]} /><meshPhysicalMaterial color="#e6c56d" emissive="#8c641e" emissiveIntensity={0.45} metalness={0.65} /></mesh>)}
-          <pointLight color="#ffdc88" intensity={8} distance={9} />
-        </group>
-      )}
-      <GoldenLeaf id={1} position={[-2.6, 2.0, -26]} found={expedition.leaves.includes(1)} onFind={onLeaf} />
-      <GoldenLeaf id={2} position={[2.9, 2.6, -68]} found={expedition.leaves.includes(2)} onFind={onLeaf} />
-      <GoldenLeaf id={3} position={[-2.4, 2.2, -104]} found={expedition.leaves.includes(3)} onFind={onLeaf} />
-      <Observatory z={-83} />
-      <Observatory z={-96} />
-      <Stage z={-151} finale />
-      <Suspense fallback={null}>
-        {(["giraffe", "elephant", "lion", "monkey", "parrot", "zebra", "leopard"] as const).map((animal, i) => (
-          <SoftSafariAnimal key={animal} animal={animal} position={[-4.8 + i * 1.6, 0, -149 + (i % 2) * 1.1]} rotation={[0, i < 3 ? 0.3 : -0.3, 0]} scale={animal === "giraffe" ? 0.55 : animal === "parrot" ? 0.42 : 0.52} />
-        ))}
-      </Suspense>
-      <Sparkles count={quality === "HIGH" ? 110 : quality === "MEDIUM" ? 60 : 24} scale={[24, 10, 170]} position={[0, 3.5, -76]} size={2.2} speed={0.14} color={golden ? "#ffe39a" : "#f4deb2"} />
-      {quality !== "LOW" && <ContactShadows position={[0, 0.02, -15]} scale={28} opacity={0.3} blur={2.5} far={16} />}
-      <CameraJourney step={step} reducedMotion={reducedMotion} />
-      {quality === "HIGH" && <EffectComposer multisampling={0}><Bloom intensity={golden ? 0.95 : 0.45} luminanceThreshold={0.75} mipmapBlur /></EffectComposer>}
-    </>
-  );
+function Observatory({z}:{z:number}){const ring=useRef<THREE.Group>(null);useFrame((_,d)=>{if(ring.current)ring.current.rotation.z+=d*.08});return <group position={[0,2.45,z]} ref={ring}>{[2.15,2.7,3.25].map((r,i)=><mesh key={r} rotation={[i*.55,i*.2,0]}><torusGeometry args={[r,.045+i*.014,12,84]}/><meshPhysicalMaterial color="#d2b36d" metalness={.62} roughness={.27} emissive="#6e4d20" emissiveIntensity={.08}/></mesh>)}<pointLight color="#ffe0a1" intensity={8} distance={10}/></group>}
+
+function GoldenLeaf({id,position,found,onFind}:{id:number;position:[number,number,number];found:boolean;onFind:(id:number)=>void}){const ref=useRef<THREE.Group>(null);useFrame((s,d)=>{if(!ref.current)return;ref.current.rotation.y+=d*.6;ref.current.position.y=position[1]+Math.sin(s.clock.elapsedTime*1.45+id)*.14});if(found)return null;return <group ref={ref} position={position} onClick={e=>{e.stopPropagation();onFind(id)}}><mesh scale={[.58,1.05,.11]} rotation={[.16,0,-.45]}><sphereGeometry args={[.52,24,16]}/><meshPhysicalMaterial color="#f1c866" emissive="#b17319" emissiveIntensity={.75} metalness={.34} roughness={.2} clearcoat={1}/></mesh><pointLight color="#ffd875" intensity={6} distance={4}/><Sparkles count={10} scale={2.1} size={2.6} speed={.3} color="#ffe4a3"/></group>}
+
+function World({expedition,step,entered,reducedMotion,quality,onLeaf}:{expedition:Expedition;step:JourneyStep;entered:boolean;reducedMotion:boolean;quality:"HIGH"|"MEDIUM"|"LOW";onLeaf:(id:number)=>void}){
+  const role=roleForKey(expedition.animalKey);const golden=expedition.leaves.length===3;
+  return <>
+    <color attach="background" args={[golden?"#ead0a0":"#c8decb"]}/><fog attach="fog" args={[golden?"#e8cca0":"#cadac8",17,quality==="LOW"?56:74]}/>
+    <ambientLight intensity={.45}/><hemisphereLight color="#fff4d5" groundColor="#5c6d54" intensity={2.3}/><directionalLight castShadow={quality!=="LOW"} color="#ffe1a2" intensity={3.4} position={[-7,13,8]} shadow-mapSize={[quality==="HIGH"?1536:768,quality==="HIGH"?1536:768]}/><SunGlow/>
+    <Ground/><Foliage/><RouteLanterns/><BalloonGate entered={entered}/><IntroInstallation/>
+    <Suspense fallback={null}><SoftSafariAnimal animal={expedition.animalKey} position={[0,0,-10.8]} scale={.9} active={step!=="ENTER"}/><SoftSafariAnimal animal={expedition.animalKey} position={[2.45,0,-30]} rotation={[0,-.45,0]} scale={.62} active={step==="TRAIL"}/></Suspense>
+    <Terrain terrain={role.terrain}/>
+    <GoldenLeaf id={1} position={[-2.65,2,-26]} found={expedition.leaves.includes(1)} onFind={onLeaf}/><GoldenLeaf id={2} position={[2.9,2.55,-68]} found={expedition.leaves.includes(2)} onFind={onLeaf}/><GoldenLeaf id={3} position={[-2.4,2.2,-104]} found={expedition.leaves.includes(3)} onFind={onLeaf}/>
+    <Observatory z={-83}/><Observatory z={-96}/>
+    <group position={[0,0,-151]}><Backdrop finale/><CakeAndOne z={0} golden={golden}/><BalloonGate entered/></group>
+    <Suspense fallback={null}>{(["giraffe","elephant","lion","monkey","parrot","zebra","leopard"] as const).map((animal,i)=><SoftSafariAnimal key={animal} animal={animal} position={[-4.8+i*1.6,0,-149+(i%2)*1.05]} rotation={[0,i<3?.3:-.3,0]} scale={animal==="giraffe"?.54:animal==="parrot"?.4:.5} active={step==="FINALE"}/>)}</Suspense>
+    <Sparkles count={quality==="HIGH"?90:quality==="MEDIUM"?52:20} scale={[24,9,170]} position={[0,3.4,-76]} size={2} speed={.12} color={golden?"#ffe09a":"#f3ddb2"}/>
+    {quality!=="LOW"&&<ContactShadows position={[0,.02,-4]} scale={28} opacity={.22} blur={2.8} far={18}/>}<CameraJourney step={step} reducedMotion={reducedMotion}/>
+    {quality==="HIGH"&&<EffectComposer multisampling={0}><Bloom intensity={golden?.75:.32} luminanceThreshold={.8} mipmapBlur/><Vignette eskil={false} offset={.22} darkness={.18}/></EffectComposer>}
+  </>
 }
 
-function detectQuality(): "HIGH" | "MEDIUM" | "LOW" {
-  if (typeof navigator === "undefined") return "MEDIUM";
-  const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
-  if (memory <= 2 || navigator.hardwareConcurrency <= 4) return "LOW";
-  if (memory >= 8 && navigator.hardwareConcurrency >= 8) return "HIGH";
-  return "MEDIUM";
-}
+function detectQuality():"HIGH"|"MEDIUM"|"LOW"{if(typeof navigator==="undefined")return"MEDIUM";const memory=(navigator as Navigator&{deviceMemory?:number}).deviceMemory??4;if(memory<=2||navigator.hardwareConcurrency<=4)return"LOW";if(memory>=8&&navigator.hardwareConcurrency>=8)return"HIGH";return"MEDIUM"}
 
-export default function SafariWorld({ expedition, step, entered, reducedMotion, onLeaf, onWebglFailure }: { expedition: Expedition; step: JourneyStep; entered: boolean; reducedMotion: boolean; onLeaf: (id: number) => void; onWebglFailure: () => void }) {
-  const [quality, setQuality] = useState<"HIGH" | "MEDIUM" | "LOW">(detectQuality);
-  const dpr = quality === "HIGH" ? [1, 1.5] : quality === "MEDIUM" ? [0.9, 1.25] : [0.75, 1];
-  return (
-    <div className="world-canvas" aria-hidden="true" data-quality={quality}>
-      <Canvas
-        shadows={quality !== "LOW"}
-        dpr={dpr as [number, number]}
-        camera={{ position: [0, 3.2, 14], fov: 43, near: 0.1, far: 220 }}
-        gl={{ antialias: quality !== "LOW", powerPreference: quality === "LOW" ? "low-power" : "high-performance", alpha: true }}
-        onCreated={({ gl }) => {
-          gl.outputColorSpace = THREE.SRGBColorSpace;
-          gl.toneMapping = THREE.ACESFilmicToneMapping;
-          gl.toneMappingExposure = 1.06;
-          gl.domElement.addEventListener("webglcontextlost", (event) => { event.preventDefault(); onWebglFailure(); }, { once: true });
-        }}
-      >
-        <PerformanceMonitor
-          flipflops={2}
-          onDecline={() => setQuality((current) => current === "HIGH" ? "MEDIUM" : "LOW")}
-          onIncline={() => setQuality((current) => current === "LOW" ? "MEDIUM" : current)}
-        />
-        <World expedition={expedition} step={step} entered={entered} reducedMotion={reducedMotion} quality={quality} onLeaf={onLeaf} />
-      </Canvas>
-    </div>
-  );
+export default function SafariWorld({expedition,step,entered,reducedMotion,onLeaf,onWebglFailure}:{expedition:Expedition;step:JourneyStep;entered:boolean;reducedMotion:boolean;onLeaf:(id:number)=>void;onWebglFailure:()=>void}){
+  const [quality,setQuality]=useState<"HIGH"|"MEDIUM"|"LOW">(detectQuality);const dpr=quality==="HIGH"?[1,1.45]:quality==="MEDIUM"?[.9,1.2]:[.72,1];
+  return <div className="world-canvas" aria-hidden="true" data-quality={quality}><Canvas shadows={quality!=="LOW"} dpr={dpr as [number,number]} camera={{position:[0,3.15,14.5],fov:42,near:.1,far:220}} gl={{antialias:quality!=="LOW",powerPreference:quality==="LOW"?"low-power":"high-performance",alpha:true}} onCreated={({gl})=>{gl.outputColorSpace=THREE.SRGBColorSpace;gl.toneMapping=THREE.ACESFilmicToneMapping;gl.toneMappingExposure=1.05;gl.domElement.addEventListener("webglcontextlost",e=>{e.preventDefault();onWebglFailure()},{once:true})}}><PerformanceMonitor flipflops={2} onDecline={()=>setQuality(q=>q==="HIGH"?"MEDIUM":"LOW")} onIncline={()=>setQuality(q=>q==="LOW"?"MEDIUM":q)}/><World expedition={expedition} step={step} entered={entered} reducedMotion={reducedMotion} quality={quality} onLeaf={onLeaf}/></Canvas></div>
 }
