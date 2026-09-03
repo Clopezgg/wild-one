@@ -13,17 +13,27 @@ type Props = {
   onWebglFailure: () => void;
 };
 
-/**
- * Real visitors receive the official Juan Alexander event-garden world.
- * Automated browser runners use a lightweight canvas placeholder so the
- * interaction/persistence/WebKit journeys remain deterministic without a
- * software GPU starving the browser process.
- */
-export default function SafariWorld(props: Props) {
-  const [automation, setAutomation] = useState<boolean | null>(null);
-  useEffect(() => setAutomation(Boolean(navigator.webdriver)), []);
+function supportsWebGL() {
+  try {
+    const canvas = document.createElement("canvas");
+    return Boolean(canvas.getContext("webgl2") || canvas.getContext("webgl"));
+  } catch {
+    return false;
+  }
+}
 
-  if (automation === null) return <div className="world-canvas world-canvas--warming" aria-hidden="true" />;
-  if (automation) return <div className="world-canvas world-canvas--qa" aria-hidden="true" data-quality="QA" />;
-  return <SafariWorldOfficial {...props} />;
+/** Real visitors receive the official event-garden world. Automated browser
+ * runners use a lightweight placeholder so persistence and WebKit journeys
+ * stay deterministic without a software GPU starving the browser process. */
+export default function SafariWorld(props: Props) {
+  const [mode, setMode] = useState<"loading" | "qa" | "webgl" | "fallback">("loading");
+  useEffect(() => {
+    if (navigator.webdriver) setMode("qa");
+    else setMode(supportsWebGL() ? "webgl" : "fallback");
+  }, []);
+
+  if (mode === "loading") return <div className="world-canvas world-canvas--warming" aria-hidden="true" />;
+  if (mode === "qa") return <div className="world-canvas world-canvas--qa" aria-hidden="true" data-quality="QA" />;
+  if (mode === "fallback") return <div className="official-webgl-fallback" role="status">Modo ilustrado activo</div>;
+  return <SafariWorldOfficial {...props} onWebglFailure={() => { setMode("fallback"); props.onWebglFailure(); }} />;
 }
