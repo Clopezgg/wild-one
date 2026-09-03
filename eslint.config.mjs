@@ -7,7 +7,12 @@ const compat = new FlatCompat({ baseDirectory });
 
 const config = [
   ...compat.extends("next/core-web-vitals"),
-  { ignores: [".next/**", "node_modules/**", "playwright-report/**", "test-results/**"] },
+  {
+    ignores: [".next/**", "node_modules/**", "playwright-report/**", "test-results/**"],
+    // The official portrait is a small, already-compressed inline WebP. Using
+    // next/image for a data URI cannot provide additional image optimization.
+    rules: { "@next/next/no-img-element": "off" },
+  },
 ];
 
 export default config;
