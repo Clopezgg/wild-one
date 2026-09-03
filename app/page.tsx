@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import LivingSafariExperience from "@/components/safari/LivingSafariExperience";
 
 export default function HomePage() {
-  redirect("/v4/index.html");
+  return <LivingSafariExperience />;
 }

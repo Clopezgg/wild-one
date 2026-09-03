@@ -1,27 +1,37 @@
 {
   "name": "wild-one",
-  "version": "2.0.0",
+  "version": "5.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",
     "@react-three/fiber": "^9.7.0",
     "@react-three/postprocessing": "^3.1.1",
+    "@vercel/analytics": "^1.5.0",
     "next": "^15.5.25",
     "postprocessing": "^6.37.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "three": "^0.185.1"
+    "three": "^0.185.1",
+    "zod": "^4.1.5"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/three": "^0.185.0",
-    "typescript": "^5.7.0"
+    "@playwright/test": "^1.55.0",
+    "eslint": "^9.34.0",
+    "eslint-config-next": "^15.5.2",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.4"
   }
 }
