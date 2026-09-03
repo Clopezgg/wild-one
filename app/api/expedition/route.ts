@@ -7,7 +7,7 @@ import { expeditionPatchSchema, recoverySchema } from "@/lib/validation";
 import { expeditionEdgeRequest, explorerCode, hasDirectSupabase, hasExpeditionStore, newGuestToken, supabaseRequest, tokenHash } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
-const COOKIE = "wild_one_expedition";
+const COOKIE = "juan_alexander_expedition";
 
 type Row = {
   id: string;
@@ -67,9 +67,9 @@ async function getOrCreate(token: string, locale: "en" | "es") {
     await supabaseRequest(`wild_one_guest_expeditions?guest_token_hash=eq.${hash}`, {
       method: "PATCH",
       headers: { Prefer: "return=minimal" },
-      body: JSON.stringify({ last_seen_at: new Date().toISOString(), locale }),
+      body: JSON.stringify({ last_seen_at: new Date().toISOString(), locale, journey_version: eventConfig.journeyVersion }),
     });
-    return publicExpedition(existing[0], token);
+    return publicExpedition({ ...existing[0], journey_version: eventConfig.journeyVersion }, token);
   }
   const role = safariRoles[randomBytes(1)[0] % safariRoles.length];
   const [created] = await supabaseRequest<Row[]>("wild_one_guest_expeditions", {
@@ -92,7 +92,7 @@ function responseWithCookie(body: unknown, token: string, init?: ResponseInit) {
   const response = NextResponse.json(body, init);
   response.cookies.set(COOKIE, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.VERCEL === "1",
     sameSite: "lax",
     maxAge: 60 * 60 * 24 * 365 * 2,
     path: "/",
@@ -101,7 +101,7 @@ function responseWithCookie(body: unknown, token: string, init?: ResponseInit) {
 }
 
 export async function GET(request: Request) {
-  const locale = new URL(request.url).searchParams.get("locale") === "es" ? "es" : "en";
+  const locale = new URL(request.url).searchParams.get("locale") === "en" ? "en" : "es";
   const jar = await cookies();
   const token = jar.get(COOKIE)?.value ?? newGuestToken();
   try {
@@ -118,11 +118,8 @@ export async function PATCH(request: Request) {
   const jar = await cookies();
   const existingToken = jar.get(COOKIE)?.value;
   const token = existingToken ?? newGuestToken();
-  const locale = parsed.data.locale ?? "en";
+  const locale = parsed.data.locale ?? "es";
 
-  // A guest can interact before the initial GET has finished setting its cookie
-  // on a slow/mobile connection. Treat that as a first-touch expedition instead
-  // of returning 401 so language, leaf and calendar actions remain fail-open.
   if (!existingToken) {
     try {
       await getOrCreate(token, locale);
@@ -140,6 +137,7 @@ export async function PATCH(request: Request) {
     ...(parsed.data.attendance !== undefined && { rsvp_status: parsed.data.attendance }),
     ...(leaves && { golden_leaves: leaves, rank: leaves.length === 3 ? "GOLDEN EXPLORER" : "EXPLORER" }),
     ...(parsed.data.calendarSaved !== undefined && { calendar_saved: parsed.data.calendarSaved }),
+    journey_version: eventConfig.journeyVersion,
     last_seen_at: new Date().toISOString(),
   };
 
@@ -174,9 +172,9 @@ export async function POST(request: Request) {
     await supabaseRequest(`wild_one_guest_expeditions?id=eq.${rows[0].id}`, {
       method: "PATCH",
       headers: { Prefer: "return=minimal" },
-      body: JSON.stringify({ guest_token_hash: tokenHash(token), last_seen_at: new Date().toISOString() }),
+      body: JSON.stringify({ guest_token_hash: tokenHash(token), journey_version: eventConfig.journeyVersion, last_seen_at: new Date().toISOString() }),
     });
-    return responseWithCookie(publicExpedition(rows[0], token), token);
+    return responseWithCookie(publicExpedition({ ...rows[0], journey_version: eventConfig.journeyVersion }, token), token);
   } catch {
     return NextResponse.json({ error: "Explorer recovery failed" }, { status: 503 });
   }

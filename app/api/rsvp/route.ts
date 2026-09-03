@@ -4,6 +4,7 @@ import { rsvpSchema, cleanGuestName } from "@/lib/validation";
 import { expeditionEdgeRequest, hasDirectSupabase, hasRsvpStore, supabaseRequest, tokenHash } from "@/lib/supabase/server";
 
 const attempts = new Map<string, { count: number; reset: number }>();
+const COOKIE = "juan_alexander_expedition";
 
 function limited(request: Request) {
   const key = request.headers.get("x-forwarded-for")?.split(",")[0] ?? "local";
@@ -21,9 +22,9 @@ export async function POST(request: Request) {
   if (limited(request)) return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   const parsed = rsvpSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid RSVP" }, { status: 400 });
-  if (!hasRsvpStore) return NextResponse.json({ error: "RSVP store unavailable", whatsappFallback: true }, { status: 503 });
+  if (!hasRsvpStore) return NextResponse.json({ error: "RSVP store unavailable" }, { status: 503 });
   const data = { ...parsed.data, guestName: cleanGuestName(parsed.data.guestName) };
-  const token = (await cookies()).get("wild_one_expedition")?.value;
+  const token = (await cookies()).get(COOKIE)?.value;
   try {
     if (!hasDirectSupabase) {
       if (!token) throw new Error("Missing expedition token");
@@ -34,7 +35,7 @@ export async function POST(request: Request) {
       await supabaseRequest(`wild_one_guest_expeditions?guest_token_hash=eq.${tokenHash(token)}`, {
         method: "PATCH",
         headers: { Prefer: "return=minimal" },
-        body: JSON.stringify({ guest_name: data.guestName, rsvp_status: data.attendance, golden_leaves: data.leaves, rank: data.leaves.length === 3 ? "GOLDEN EXPLORER" : "EXPLORER", updated_at: new Date().toISOString() }),
+        body: JSON.stringify({ guest_name: data.guestName, rsvp_status: data.attendance, golden_leaves: data.leaves, rank: data.leaves.length === 3 ? "GOLDEN EXPLORER" : "EXPLORER", journey_version: data.journeyVersion, updated_at: new Date().toISOString() }),
       });
     }
     const fullRow = {
@@ -55,6 +56,6 @@ export async function POST(request: Request) {
     }
     return NextResponse.json({ saved: true });
   } catch {
-    return NextResponse.json({ error: "RSVP store unavailable", whatsappFallback: true }, { status: 503 });
+    return NextResponse.json({ error: "RSVP store unavailable" }, { status: 503 });
   }
 }

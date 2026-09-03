@@ -2,13 +2,13 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Alexis Alessandro — Wild One",
-    short_name: "Wild One",
-    description: "A living safari invitation for Alexis Alessandro.",
+    name: "Juan Alexander — Wild One",
+    short_name: "Juan Wild One",
+    description: "Invitación safari para celebrar el primer cumpleaños de Juan Alexander.",
     start_url: "/",
     display: "standalone",
-    background_color: "#c7ddcc",
-    theme_color: "#173b2c",
+    background_color: "#c8ddca",
+    theme_color: "#183f2d",
     orientation: "portrait-primary",
     icons: [{ src: "/icon", sizes: "512x512", type: "image/png" }],
   };
