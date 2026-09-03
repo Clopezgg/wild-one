@@ -129,6 +129,27 @@ function RoundPlinth({ position, scale = 1, color = "#eee0c3" }: { position: [nu
   );
 }
 
+function NumberOneTopper() {
+  const material = <meshPhysicalMaterial color="#d6aa57" roughness={0.18} metalness={0.28} clearcoat={0.72} />;
+  return (
+    <group position={[0, 3.02, 0.02]} rotation={[0, -0.03, 0]}>
+      <mesh position={[0.12, 0.03, 0]} castShadow>
+        <boxGeometry args={[0.36, 1.38, 0.28]} />
+        {material}
+      </mesh>
+      <mesh position={[-0.12, 0.56, 0]} rotation={[0, 0, -0.62]} castShadow>
+        <boxGeometry args={[0.30, 0.72, 0.28]} />
+        {material}
+      </mesh>
+      <mesh position={[0.02, -0.70, 0]} castShadow>
+        <boxGeometry args={[0.94, 0.22, 0.32]} />
+        {material}
+      </mesh>
+      <pointLight position={[0.1, 0.25, 0.65]} color="#ffd98a" intensity={1.6} distance={2.4} />
+    </group>
+  );
+}
+
 function Cake({ z, grand = false }: { z: number; grand?: boolean }) {
   return (
     <group position={[0, 0, z]}>
@@ -141,10 +162,7 @@ function Cake({ z, grand = false }: { z: number; grand?: boolean }) {
         <cylinderGeometry args={[0.58, 0.6, 0.48, 48]} />
         <meshPhysicalMaterial color="#fff8e9" roughness={0.24} clearcoat={0.32} />
       </mesh>
-      <mesh position={[0, 2.98, 0]} scale={[0.34, 1.02, 0.28]} castShadow>
-        <boxGeometry />
-        <meshPhysicalMaterial color="#d6aa57" roughness={0.22} metalness={0.2} clearcoat={0.55} />
-      </mesh>
+      <NumberOneTopper />
       <mesh position={[-1.1, 0.4, 0.35]} rotation={[0, 0.25, 0]} castShadow><boxGeometry args={[0.92, 0.7, 0.8]} /><meshStandardMaterial color="#72825d" roughness={0.6} /></mesh>
       <mesh position={[1.08, 0.35, 0.36]} rotation={[0, -0.2, 0]} castShadow><boxGeometry args={[0.82, 0.62, 0.72]} /><meshStandardMaterial color="#b97949" roughness={0.6} /></mesh>
     </group>
