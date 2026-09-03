@@ -7,6 +7,7 @@ import "./premium.css";
 
 const display = Cormorant_Garamond({ subsets: ["latin"], variable: "--font-display", weight: ["600", "700"], display: "swap" });
 const body = Manrope({ subsets: ["latin"], variable: "--font-body", display: "swap" });
+const analyticsEnabled = process.env.VERCEL === "1";
 
 export const metadata: Metadata = {
   title: "Alexis Alessandro — Wild One",
@@ -36,7 +37,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" suppressHydrationWarning>
       <body className={`${display.variable} ${body.variable}`}>
         {children}
-        <Analytics />
+        {analyticsEnabled ? <Analytics /> : null}
       </body>
     </html>
   );
