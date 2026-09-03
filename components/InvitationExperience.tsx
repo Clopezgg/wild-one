@@ -1,9 +1,15 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 type Locale = "en" | "es";
 type Attendance = "yes" | "no";
+
+type AudioSession = {
+  ctx: AudioContext;
+  master: GainNode;
+  timers: number[];
+};
 
 const EVENT_TIME = new Date("2026-09-20T17:00:00-04:00").getTime();
 const SUPABASE_URL = "https://sqchlnhkceztcznkjctg.supabase.co";
@@ -11,201 +17,280 @@ const SUPABASE_KEY = "sb_publishable_eyhxdWjBo_b65URp-R4l7w_4q4Ltxkc";
 const MAP_URL = "https://www.google.com/maps/search/?api=1&query=581%20Kathy%20Lane%2C%20Margate%2C%20FL%2033068";
 const WHATSAPP_NUMBER = "17546106574";
 
-const words = {
+const copy = {
   en: {
-    gateTop: "ALEXIS ALESSANDRO'S FIRST ADVENTURE",
-    gateTitle: "Something wild is waiting for you",
-    enter: "OPEN INVITATION",
+    gateKicker: "PRIVATE EXPEDITION · ACCESS 01",
+    gateTitle: "A rare celebration is about to awaken",
+    gateSub: "Beyond the leaves, one extraordinary little explorer is waiting.",
+    enter: "ENTER THE WILD",
     switch: "ES",
-    heroTop: "OUR LITTLE EXPLORER IS TURNING",
-    one: "ONE",
-    wild: "WILD ONE",
-    date: "SEPTEMBER 20 · 2026 · 5:00 PM",
-    journey: "BEGIN THE JOURNEY",
-    storyTop: "365 DAYS OF WONDER",
-    storyTitle: "One tiny explorer. One unforgettable year.",
-    storyBody: "From the very first smile to every little discovery, Alexis Alessandro has filled an entire year with magic. Now the jungle is calling for his biggest adventure yet.",
-    photoSoon: "Alexis photo coming soon",
-    detailTop: "THE EXPEDITION",
-    detailTitle: "Meet us in the wild",
-    when: "WHEN",
-    whenValue: "Sunday, September 20, 2026 · 5:00 PM",
-    where: "WHERE",
-    whereValue: "581 Kathy Lane · Margate, Florida 33068",
-    dress: "SAFARI CHIC",
-    dressValue: "Sage · Sand · Cream · Khaki · Earth tones",
-    map: "OPEN MAP",
-    countdown: "THE ADVENTURE BEGINS IN",
+    soundOn: "SOUND ON",
+    soundOff: "SOUND OFF",
+    heroKicker: "THE JUNGLE PRESENTS",
+    heroName: "Alexis Alessandro",
+    heroWild: "WILD ONE",
+    heroDate: "SEPTEMBER 20 · 2026 · 5:00 PM",
+    scroll: "DESCEND INTO THE STORY",
+    proclamationTop: "THE PROCLAMATION",
+    proclamationA: "The jungle has chosen its little king.",
+    proclamationB: "One year of wonder. One unforgettable celebration.",
+    proclamationNote: "No photographs. No ordinary invitation. Only a world created for Alexis Alessandro.",
+    routeTop: "COORDINATES REVEALED",
+    routeTitle: "The expedition has a destination",
+    dateLabel: "DATE",
+    timeLabel: "TIME",
+    locationLabel: "RENDEZVOUS",
+    dateValue: "SEPTEMBER 20, 2026",
+    timeValue: "5:00 PM",
+    locationValue: "581 KATHY LANE · MARGATE, FLORIDA 33068",
+    map: "REVEAL THE ROUTE",
+    dressTop: "THE SAFARI CODE",
+    dressTitle: "Arrive as part of the scenery",
+    dressBody: "Safari Chic · linen, sage, sand, cream, khaki and quiet earth tones.",
+    countdownTop: "THE FORBIDDEN SAFARI OPENS IN",
     days: "DAYS",
     hours: "HOURS",
     minutes: "MINUTES",
     seconds: "SECONDS",
-    today: "THE ADVENTURE IS HERE",
-    rsvpTop: "YOUR SAFARI PASS",
-    rsvpTitle: "Will you join Alexis in the wild?",
-    name: "GUEST NAME",
+    today: "THE GATES ARE OPEN",
+    rsvpTop: "THE FINAL RITUAL",
+    rsvpTitle: "Claim your Safari Pass",
+    rsvpBody: "Your name becomes part of the expedition. A private pass is forged the moment you confirm.",
+    name: "EXPLORER NAME",
     placeholder: "Your name",
-    yes: "I'LL BE THERE",
-    no: "I CAN'T MAKE IT",
-    submit: "GET MY SAFARI PASS",
-    sending: "PREPARING YOUR PASS…",
-    error: "We couldn't save your RSVP. You can still confirm instantly by WhatsApp.",
-    whatsapp: "CONFIRM BY WHATSAPP",
-    pass: "OFFICIAL SAFARI PASS",
-    explorer: "EXPLORER",
-    status: "STATUS",
-    confirmed: "CONFIRMED",
-    declined: "SENDING LOVE FROM AFAR",
-    share: "SHARE INVITATION",
-    gifts: "GIFTS",
-    giftsBody: "Your presence is the greatest gift. Additional gift details can be added here later if desired.",
-    finaleSmall: "ONE YEAR · ONE WILD ADVENTURE",
-    finale: "See you in the wild",
+    yes: "I WILL ATTEND",
+    no: "I CANNOT ATTEND",
+    submit: "FORGE MY PASS",
+    sending: "FORGING ACCESS…",
+    whatsapp: "CONFIRM THROUGH WHATSAPP",
+    error: "The expedition ledger could not be reached. WhatsApp confirmation is still available.",
+    passTop: "WILD ONE · PRIVATE SAFARI PASS",
+    passGuest: "EXPLORER",
+    passStatus: "STATUS",
+    confirmed: "CLEARED FOR EXPEDITION",
+    declined: "WITH US FROM AFAR",
+    passDate: "20 · 09 · 2026",
+    passClose: "RETURN TO THE EXPERIENCE",
+    gifts: "OPTIONAL GIFTS",
+    giftsBody: "Your presence is the rarest gift. Additional gift details may be revealed here later.",
+    finaleTop: "ONE YEAR · ONE WILD LEGEND",
+    finaleTitle: "The first chapter begins here",
+    finaleLine: "ALEXIS ALESSANDRO · WILD ONE · 2026",
   },
   es: {
-    gateTop: "LA PRIMERA AVENTURA DE ALEXIS ALESSANDRO",
-    gateTitle: "Algo salvaje te está esperando",
-    enter: "ABRIR INVITACIÓN",
+    gateKicker: "EXPEDICIÓN PRIVADA · ACCESO 01",
+    gateTitle: "Una celebración extraordinaria está por despertar",
+    gateSub: "Más allá de las hojas espera un pequeño explorador extraordinario.",
+    enter: "ENTRAR A LA SELVA",
     switch: "EN",
-    heroTop: "NUESTRO PEQUEÑO EXPLORADOR CUMPLE",
-    one: "UNO",
-    wild: "WILD ONE",
-    date: "20 DE SEPTIEMBRE · 2026 · 5:00 PM",
-    journey: "COMENZAR LA AVENTURA",
-    storyTop: "365 DÍAS DE MAGIA",
-    storyTitle: "Un pequeño explorador. Un año inolvidable.",
-    storyBody: "Desde su primera sonrisa hasta cada pequeño descubrimiento, Alexis Alessandro ha llenado un año entero de magia. Ahora la selva lo llama para su aventura más grande.",
-    photoSoon: "Aquí irá una foto de Alexis",
-    detailTop: "LA EXPEDICIÓN",
-    detailTitle: "Nos vemos en la selva",
-    when: "CUÁNDO",
-    whenValue: "Domingo 20 de septiembre de 2026 · 5:00 PM",
-    where: "DÓNDE",
-    whereValue: "581 Kathy Lane · Margate, Florida 33068",
-    dress: "SAFARI CHIC",
-    dressValue: "Salvia · Arena · Crema · Caqui · Tonos tierra",
-    map: "ABRIR MAPA",
-    countdown: "LA AVENTURA COMIENZA EN",
+    soundOn: "SONIDO ACTIVO",
+    soundOff: "SONIDO APAGADO",
+    heroKicker: "LA JUNGLA PRESENTA",
+    heroName: "Alexis Alessandro",
+    heroWild: "WILD ONE",
+    heroDate: "20 DE SEPTIEMBRE · 2026 · 5:00 PM",
+    scroll: "DESCENDER A LA HISTORIA",
+    proclamationTop: "LA PROCLAMACIÓN",
+    proclamationA: "La jungla ha elegido a su pequeño rey.",
+    proclamationB: "Un año de magia. Una celebración inolvidable.",
+    proclamationNote: "Sin fotografías. Sin una invitación ordinaria. Solo un mundo creado para Alexis Alessandro.",
+    routeTop: "COORDENADAS REVELADAS",
+    routeTitle: "La expedición tiene un destino",
+    dateLabel: "FECHA",
+    timeLabel: "HORA",
+    locationLabel: "PUNTO DE ENCUENTRO",
+    dateValue: "20 DE SEPTIEMBRE, 2026",
+    timeValue: "5:00 PM",
+    locationValue: "581 KATHY LANE · MARGATE, FLORIDA 33068",
+    map: "REVELAR LA RUTA",
+    dressTop: "EL CÓDIGO SAFARI",
+    dressTitle: "Llega como parte del paisaje",
+    dressBody: "Safari Chic · lino, verde salvia, arena, crema, caqui y tonos tierra serenos.",
+    countdownTop: "EL SAFARI PROHIBIDO ABRE EN",
     days: "DÍAS",
     hours: "HORAS",
     minutes: "MINUTOS",
     seconds: "SEGUNDOS",
-    today: "LA AVENTURA YA ESTÁ AQUÍ",
-    rsvpTop: "TU SAFARI PASS",
-    rsvpTitle: "¿Acompañarás a Alexis en esta aventura?",
-    name: "NOMBRE DEL INVITADO",
+    today: "LAS PUERTAS ESTÁN ABIERTAS",
+    rsvpTop: "EL RITUAL FINAL",
+    rsvpTitle: "Reclama tu Safari Pass",
+    rsvpBody: "Tu nombre pasa a formar parte de la expedición. El pase privado se crea al confirmar.",
+    name: "NOMBRE DEL EXPLORADOR",
     placeholder: "Tu nombre",
-    yes: "AHÍ ESTARÉ",
+    yes: "ASISTIRÉ",
     no: "NO PODRÉ ASISTIR",
-    submit: "OBTENER MI SAFARI PASS",
-    sending: "PREPARANDO TU PASE…",
-    error: "No pudimos guardar tu confirmación. También puedes confirmar de inmediato por WhatsApp.",
+    submit: "CREAR MI PASE",
+    sending: "CREANDO ACCESO…",
     whatsapp: "CONFIRMAR POR WHATSAPP",
-    pass: "SAFARI PASS OFICIAL",
-    explorer: "EXPLORADOR",
-    status: "ESTADO",
-    confirmed: "CONFIRMADO",
-    declined: "ENVIANDO CARIÑO DESDE LEJOS",
-    share: "COMPARTIR INVITACIÓN",
-    gifts: "REGALOS",
-    giftsBody: "Tu presencia es el mejor regalo. Si más adelante desean agregar información de regalos, aparecerá aquí.",
-    finaleSmall: "UN AÑO · UNA GRAN AVENTURA",
-    finale: "Nos vemos en la selva",
+    error: "No pudimos conectar con el registro de expedición. La confirmación por WhatsApp sigue disponible.",
+    passTop: "WILD ONE · SAFARI PASS PRIVADO",
+    passGuest: "EXPLORADOR",
+    passStatus: "ESTADO",
+    confirmed: "AUTORIZADO PARA LA EXPEDICIÓN",
+    declined: "CON NOSOTROS DESDE LA DISTANCIA",
+    passDate: "20 · 09 · 2026",
+    passClose: "VOLVER A LA EXPERIENCIA",
+    gifts: "REGALOS OPCIONALES",
+    giftsBody: "Tu presencia es el regalo más especial. Más adelante se puede revelar aquí cualquier detalle adicional.",
+    finaleTop: "UN AÑO · UNA LEYENDA SALVAJE",
+    finaleTitle: "El primer capítulo comienza aquí",
+    finaleLine: "ALEXIS ALESSANDRO · WILD ONE · 2026",
   },
 } as const;
 
-function pad(n: number) {
-  return String(Math.max(0, n)).padStart(2, "0");
+function pad(value: number) {
+  return String(Math.max(0, value)).padStart(2, "0");
 }
 
 function Leaf({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 180 280" aria-hidden="true">
-      <path d="M88 270C48 218 20 153 27 86 32 41 57 11 88 4c33 13 56 43 61 84 7 63-18 128-61 182Z" fill="currentColor"/>
-      <path d="M89 23v229M89 68 50 42M89 101l52-35M89 137 40-19M89 164l-49-29M89 205l38-25" fill="none" stroke="rgba(255,255,255,.18)" strokeWidth="3" strokeLinecap="round"/>
+    <svg className={className} viewBox="0 0 190 310" aria-hidden="true">
+      <path d="M94 302C55 260 23 192 25 116 27 55 53 15 94 5c42 13 68 54 70 111 3 74-31 145-70 186Z" fill="currentColor" />
+      <path d="M95 24v253M95 66 54 38M95 95l53-36M95 128 45 96M95 158l56-36M95 190 48 156M95 221l48-31M95 252l-38-23" fill="none" stroke="rgba(255,255,255,.18)" strokeWidth="2.5" strokeLinecap="round" />
     </svg>
   );
 }
 
-function Animal({ type, className = "" }: { type: "lion" | "giraffe" | "elephant"; className?: string }) {
-  if (type === "lion") {
-    return (
-      <svg className={className} viewBox="0 0 220 220" aria-hidden="true">
-        <circle cx="110" cy="108" r="78" fill="#b97843"/>
-        <circle cx="110" cy="110" r="55" fill="#dba76c"/>
-        <circle cx="91" cy="102" r="5" fill="#3d2b22"/><circle cx="129" cy="102" r="5" fill="#3d2b22"/>
-        <path d="M103 120h14l-7 9Z" fill="#493126"/>
-        <path d="M91 135q19 13 38 0" fill="none" stroke="#493126" strokeWidth="4" strokeLinecap="round"/>
-        <path d="M73 74Q55 51 48 77M147 74q18-23 25 3" fill="#dba76c" stroke="#8d5a37" strokeWidth="4"/>
-      </svg>
-    );
-  }
-  if (type === "giraffe") {
-    return (
-      <svg className={className} viewBox="0 0 180 320" aria-hidden="true">
-        <path d="M75 285c7-43 2-102 9-149 4-30 10-60 18-91 3-12 15-21 29-21 18 0 31 14 31 31 0 21-15 34-38 35-5 56 3 128 10 195Z" fill="#d9a15e"/>
-        <path d="M111 21 104 5M139 22l8-17" stroke="#6d4c33" strokeWidth="7" strokeLinecap="round"/>
-        <circle cx="145" cy="54" r="5" fill="#2f2a24"/>
-        <path d="M103 50q-20 8-30-9" fill="none" stroke="#6d4c33" strokeWidth="5" strokeLinecap="round"/>
-        <g fill="#8f603b"><ellipse cx="114" cy="76" rx="13" ry="9"/><ellipse cx="105" cy="117" rx="11" ry="18"/><ellipse cx="115" cy="160" rx="13" ry="10"/><ellipse cx="107" cy="205" rx="10" ry="17"/><ellipse cx="120" cy="246" rx="12" ry="9"/></g>
-      </svg>
-    );
-  }
+function Giraffe({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 260 210" aria-hidden="true">
-      <ellipse cx="126" cy="118" rx="83" ry="68" fill="#9b9185"/>
-      <circle cx="190" cy="101" r="46" fill="#a69b8e"/>
-      <ellipse cx="164" cy="100" rx="35" ry="45" fill="#81776d"/>
-      <path d="M221 117c12 31 4 57-13 72-8 7-18-2-12-11 15-22 9-38-1-57Z" fill="#a69b8e"/>
-      <circle cx="204" cy="91" r="4" fill="#292622"/>
-      <path d="M73 157v42M108 168v31M154 166v33" stroke="#756d65" strokeWidth="18" strokeLinecap="round"/>
+    <svg className={className} viewBox="0 0 220 420" aria-hidden="true">
+      <defs>
+        <linearGradient id="giraffeGold" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#f0c57a"/><stop offset="1" stopColor="#b97843"/></linearGradient>
+      </defs>
+      <path d="M81 400c12-84 2-169 12-247 5-45 17-83 31-112 8-17 28-27 47-20 25 9 37 35 27 58-9 22-31 31-59 25-3 83 10 200 18 296Z" fill="url(#giraffeGold)" />
+      <path d="M142 25 132 3M177 30l13-22" stroke="#6d4930" strokeWidth="9" strokeLinecap="round" />
+      <path d="M125 72q-31 13-45-16" fill="none" stroke="#6d4930" strokeWidth="7" strokeLinecap="round" />
+      <circle cx="180" cy="60" r="6" fill="#241a14" />
+      <g fill="#7d5235" opacity=".95"><ellipse cx="144" cy="99" rx="15" ry="11"/><ellipse cx="125" cy="148" rx="13" ry="22"/><ellipse cx="142" cy="207" rx="17" ry="12"/><ellipse cx="125" cy="267" rx="13" ry="23"/><ellipse cx="146" cy="326" rx="16" ry="11"/><ellipse cx="118" cy="365" rx="11" ry="18"/></g>
     </svg>
   );
 }
 
-function BalloonArch() {
-  const balloons = [
-    [8, 67, 72, "sage"], [14, 47, 58, "cream"], [22, 30, 68, "camel"], [34, 18, 54, "forest"], [47, 11, 62, "sand"],
-    [61, 12, 54, "cream"], [73, 20, 68, "sage"], [84, 34, 56, "camel"], [91, 53, 70, "forest"], [94, 70, 55, "cream"],
-    [4, 82, 52, "camel"], [97, 84, 50, "sage"], [27, 14, 38, "cream"], [78, 16, 40, "sand"], [11, 58, 37, "forest"],
-  ];
+function Lion({ className = "" }: { className?: string }) {
   return (
-    <div className="balloon-arch" aria-hidden="true">
-      {balloons.map(([x, y, size, tone], i) => (
-        <i key={i} className={`balloon balloon--${tone}`} style={{ left: `${x}%`, top: `${y}%`, width: size, height: size * 1.12, animationDelay: `${-i * 0.34}s` }} />
-      ))}
-    </div>
+    <svg className={className} viewBox="0 0 300 300" aria-hidden="true">
+      <defs><radialGradient id="mane"><stop stopColor="#c78b4f"/><stop offset="1" stopColor="#74442d"/></radialGradient></defs>
+      <circle cx="150" cy="148" r="117" fill="url(#mane)" />
+      <circle cx="150" cy="151" r="78" fill="#e3b576" />
+      <path d="M101 105Q74 66 65 114M199 105q27-39 36 9" fill="#d79b60" stroke="#7a4b30" strokeWidth="7" />
+      <circle cx="123" cy="143" r="7" fill="#241b16"/><circle cx="178" cy="143" r="7" fill="#241b16"/>
+      <path d="M139 169h23l-12 13Z" fill="#4b3025" />
+      <path d="M123 192q27 22 55 0" fill="none" stroke="#4b3025" strokeWidth="6" strokeLinecap="round" />
+      <g stroke="#6b4b34" strokeWidth="3" opacity=".65"><path d="M109 175 57 161"/><path d="M111 184 55 186"/><path d="M190 175l52-14"/><path d="M188 184l56 2"/></g>
+    </svg>
   );
+}
+
+function Elephant({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 360 280" aria-hidden="true">
+      <defs><linearGradient id="elephantSkin" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#b2aaa0"/><stop offset="1" stopColor="#706a65"/></linearGradient></defs>
+      <ellipse cx="171" cy="161" rx="112" ry="88" fill="url(#elephantSkin)" />
+      <circle cx="268" cy="135" r="64" fill="#a39b92" />
+      <ellipse cx="222" cy="135" rx="49" ry="61" fill="#777069" opacity=".9" />
+      <path d="M310 150c20 45 7 84-20 103-13 9-27-5-18-18 24-31 13-55-5-82Z" fill="#9a938a" />
+      <circle cx="286" cy="121" r="6" fill="#22201d" />
+      <path d="M103 212v55M155 224v43M211 219v48" stroke="#67615c" strokeWidth="24" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function Leopard({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 330 220" aria-hidden="true">
+      <path d="M40 153c21-71 88-111 169-95 48 9 80 40 89 73-7 43-46 72-96 72H86c-35 0-55-17-46-50Z" fill="#c69650" />
+      <circle cx="258" cy="82" r="43" fill="#d8aa64" />
+      <path d="M231 53 218 29l32 15M277 53l19-22 6 34" fill="#b77e3e" />
+      <circle cx="247" cy="79" r="5" fill="#221b16"/><circle cx="273" cy="79" r="5" fill="#221b16"/>
+      <path d="M253 96h15l-7 8Z" fill="#3a261c" />
+      <g fill="#5c402e"><circle cx="105" cy="101" r="10"/><circle cx="146" cy="83" r="8"/><circle cx="176" cy="117" r="12"/><circle cx="211" cy="91" r="8"/><circle cx="90" cy="144" r="8"/><circle cx="137" cy="152" r="10"/><circle cx="206" cy="154" r="9"/></g>
+      <path d="M42 145C11 129 3 94 29 75" fill="none" stroke="#c69650" strokeWidth="18" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function Monkey({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 240 260" aria-hidden="true">
+      <path d="M53 105c-14-58 35-93 75-76 39-27 92 7 82 59 20 25 8 70-28 78-13 55-105 61-126 8-39-10-43-50-3-69Z" fill="#6e4934" />
+      <ellipse cx="128" cy="126" rx="58" ry="63" fill="#b9825a" />
+      <circle cx="107" cy="119" r="6" fill="#261a14"/><circle cx="150" cy="119" r="6" fill="#261a14"/>
+      <path d="M117 143h22l-11 9Z" fill="#4b3025"/><path d="M108 165q20 16 41 0" fill="none" stroke="#4b3025" strokeWidth="5" strokeLinecap="round" />
+      <path d="M70 193c-49 8-59 52-25 58" fill="none" stroke="#6e4934" strokeWidth="15" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function BalloonConstellation({ className = "" }: { className?: string }) {
+  return <div className={`balloon-constellation ${className}`} aria-hidden="true">{Array.from({ length: 22 }, (_, i) => <i key={i} />)}</div>;
+}
+
+function Compass() {
+  return (
+    <svg className="compass" viewBox="0 0 320 320" aria-hidden="true">
+      <circle cx="160" cy="160" r="142" fill="none" stroke="currentColor" strokeWidth="1.5" opacity=".35" />
+      <circle cx="160" cy="160" r="112" fill="none" stroke="currentColor" strokeWidth="1" opacity=".25" />
+      <circle cx="160" cy="160" r="72" fill="none" stroke="currentColor" strokeWidth="1" opacity=".2" />
+      <path d="M160 36 181 141 160 160 139 141Z" fill="currentColor" opacity=".92" />
+      <path d="m160 284-21-105 21-19 21 19Z" fill="currentColor" opacity=".3" />
+      <path d="M36 160 141 139 160 160 141 181Z" fill="currentColor" opacity=".28" />
+      <path d="m284 160-105 21-19-21 19-21Z" fill="currentColor" opacity=".28" />
+      <text x="160" y="25" textAnchor="middle" fill="currentColor" fontSize="14" letterSpacing="4">N</text>
+      <text x="160" y="307" textAnchor="middle" fill="currentColor" fontSize="14" letterSpacing="4">S</text>
+      <text x="15" y="166" textAnchor="middle" fill="currentColor" fontSize="14" letterSpacing="4">W</text>
+      <text x="306" y="166" textAnchor="middle" fill="currentColor" fontSize="14" letterSpacing="4">E</text>
+    </svg>
+  );
+}
+
+function SoundGlyph() {
+  return <span className="sound-glyph" aria-hidden="true"><i/><i/><i/><i/></span>;
 }
 
 export default function InvitationExperience() {
   const [locale, setLocale] = useState<Locale>("en");
   const [entered, setEntered] = useState(false);
+  const [soundOn, setSoundOn] = useState(false);
   const [now, setNow] = useState(Date.now());
   const [guestName, setGuestName] = useState("");
   const [attendance, setAttendance] = useState<Attendance>("yes");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(false);
-  const t = words[locale];
+  const audioRef = useRef<AudioSession | null>(null);
+  const t = copy[locale];
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("wild-one-locale") as Locale | null;
     const detected: Locale = navigator.language.toLowerCase().startsWith("es") ? "es" : "en";
-    const next = saved === "en" || saved === "es" ? saved : detected;
-    setLocale(next);
-    document.documentElement.lang = next;
+    const saved = localStorage.getItem("wild-one-locale") as Locale | null;
+    const initial = saved === "en" || saved === "es" ? saved : detected;
+    setLocale(initial);
+    document.documentElement.lang = initial;
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add("is-visible"));
-    }, { threshold: 0.12 });
-    document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add("is-visible");
+      });
+    }, { threshold: 0.16 });
+    document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
+
+    const pointer = (event: PointerEvent) => {
+      const x = (event.clientX / window.innerWidth - .5) * 2;
+      const y = (event.clientY / window.innerHeight - .5) * 2;
+      document.documentElement.style.setProperty("--px", x.toFixed(3));
+      document.documentElement.style.setProperty("--py", y.toFixed(3));
+    };
+    window.addEventListener("pointermove", pointer, { passive: true });
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("pointermove", pointer);
+      stopSound();
+    };
   }, []);
 
   useEffect(() => {
-    const id = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(id);
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
   }, []);
 
   const remaining = useMemo(() => {
@@ -220,13 +305,115 @@ export default function InvitationExperience() {
   }, [now]);
 
   function switchLocale() {
-    const next = locale === "en" ? "es" : "en";
+    const next: Locale = locale === "en" ? "es" : "en";
     setLocale(next);
-    window.localStorage.setItem("wild-one-locale", next);
+    localStorage.setItem("wild-one-locale", next);
     document.documentElement.lang = next;
   }
 
-  async function submitRsvp(event: FormEvent) {
+  function startSound() {
+    if (audioRef.current) return;
+    const AudioCtor = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtor) return;
+    const ctx = new AudioCtor();
+    const master = ctx.createGain();
+    master.gain.value = 0.0001;
+    master.connect(ctx.destination);
+    master.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 1.8);
+
+    const ambience = ctx.createBuffer(1, ctx.sampleRate * 4, ctx.sampleRate);
+    const ambData = ambience.getChannelData(0);
+    for (let i = 0; i < ambData.length; i += 1) ambData[i] = (Math.random() * 2 - 1) * 0.22;
+    const amb = ctx.createBufferSource();
+    amb.buffer = ambience;
+    amb.loop = true;
+    const low = ctx.createBiquadFilter();
+    low.type = "lowpass";
+    low.frequency.value = 520;
+    const ambGain = ctx.createGain();
+    ambGain.gain.value = 0.13;
+    amb.connect(low); low.connect(ambGain); ambGain.connect(master); amb.start();
+
+    const tone = (frequency: number, duration: number, volume: number, type: OscillatorType = "sine", delay = 0) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.value = frequency;
+      const start = ctx.currentTime + delay;
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(volume, start + Math.min(.12, duration * .2));
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+      osc.connect(gain); gain.connect(master); osc.start(start); osc.stop(start + duration + .03);
+    };
+
+    const drum = () => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(115, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(46, ctx.currentTime + .22);
+      gain.gain.setValueAtTime(.24, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime + .34);
+      osc.connect(gain); gain.connect(master); osc.start(); osc.stop(ctx.currentTime + .36);
+    };
+
+    const chime = () => {
+      const scale = [220, 261.63, 329.63, 392, 523.25];
+      const f = scale[Math.floor(Math.random() * scale.length)];
+      tone(f, 2.8, .04, "sine");
+      tone(f * 2, 1.6, .012, "triangle", .08);
+    };
+
+    const bird = () => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      const base = 1200 + Math.random() * 650;
+      osc.frequency.setValueAtTime(base, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(base * 1.55, ctx.currentTime + .09);
+      osc.frequency.exponentialRampToValueAtTime(base * .92, ctx.currentTime + .28);
+      gain.gain.setValueAtTime(.0001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.035, ctx.currentTime + .04);
+      gain.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime + .32);
+      osc.connect(gain); gain.connect(master); osc.start(); osc.stop(ctx.currentTime + .34);
+    };
+
+    const chord = () => {
+      [110, 164.81, 220, 293.66].forEach((f, i) => tone(f, 5.8, i === 0 ? .035 : .018, i % 2 ? "triangle" : "sine", i * .04));
+    };
+
+    drum(); tone(440, 2.2, .035, "triangle", .25); chord();
+    const timers = [
+      window.setInterval(drum, 3100),
+      window.setInterval(chime, 4700),
+      window.setInterval(chord, 6200),
+      window.setInterval(bird, 7900),
+    ];
+    audioRef.current = { ctx, master, timers };
+    setSoundOn(true);
+  }
+
+  function stopSound() {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.timers.forEach(timer => window.clearInterval(timer));
+    audio.master.gain.setTargetAtTime(0.0001, audio.ctx.currentTime, .12);
+    window.setTimeout(() => audio.ctx.close(), 700);
+    audioRef.current = null;
+    setSoundOn(false);
+  }
+
+  function toggleSound() {
+    if (soundOn) stopSound(); else startSound();
+  }
+
+  function enterExperience() {
+    setEntered(true);
+    startSound();
+    window.setTimeout(() => document.getElementById("hero")?.scrollIntoView({ behavior: "smooth" }), 1050);
+  }
+
+  async function submitRsvp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (guestName.trim().length < 2) return;
     setSubmitting(true);
@@ -242,7 +429,7 @@ export default function InvitationExperience() {
         },
         body: JSON.stringify({ guest_name: guestName.trim(), attendance, locale, event_slug: "alexis-wild-one" }),
       });
-      if (!response.ok) throw new Error("RSVP failed");
+      if (!response.ok) throw new Error("rsvp_failed");
       setSubmitted(true);
     } catch {
       setError(true);
@@ -251,165 +438,173 @@ export default function InvitationExperience() {
     }
   }
 
-  const whatsappText = locale === "es"
+  const whatsappMessage = locale === "es"
     ? `Hola, confirmo mi asistencia al Wild One de Alexis Alessandro. Mi nombre es ${guestName.trim() || "_____"}.`
-    : `Hi! I'm confirming my attendance for Alexis Alessandro's Wild One. My name is ${guestName.trim() || "_____"}.`;
-  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappText)}`;
-
-  async function shareInvitation() {
-    if (navigator.share) {
-      await navigator.share({ title: "Alexis Alessandro — Wild One", text: locale === "es" ? "Acompáñanos a la primera gran aventura de Alexis Alessandro." : "Join Alexis Alessandro's first wild adventure.", url: window.location.href });
-    } else {
-      await navigator.clipboard.writeText(window.location.href);
-    }
-  }
+    : `Hi, I am confirming my attendance for Alexis Alessandro's Wild One. My name is ${guestName.trim() || "_____"}.`;
+  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
     <main className="experience">
-      <div className={`opening ${entered ? "opening--gone" : ""}`}>
-        <div className="opening__glow" />
-        <Leaf className="opening__leaf opening__leaf--1" />
-        <Leaf className="opening__leaf opening__leaf--2" />
-        <Leaf className="opening__leaf opening__leaf--3" />
-        <Leaf className="opening__leaf opening__leaf--4" />
-        <div className="opening__card">
-          <div className="monogram"><span>A</span><small>1</small></div>
-          <p className="micro">{t.gateTop}</p>
+      <div className={`gate ${entered ? "gate--open" : ""}`} aria-hidden={entered}>
+        <div className="gate__veil gate__veil--left"><Leaf className="gate__leaf gate__leaf--a"/><Leaf className="gate__leaf gate__leaf--b"/></div>
+        <div className="gate__veil gate__veil--right"><Leaf className="gate__leaf gate__leaf--c"/><Leaf className="gate__leaf gate__leaf--d"/></div>
+        <div className="gate__stars" aria-hidden="true">{Array.from({ length: 24 }, (_, i) => <i key={i}/>)}</div>
+        <div className="gate__content">
+          <div className="seal seal--gate"><span>A</span><b>01</b><i>WILD</i></div>
+          <p className="micro">{t.gateKicker}</p>
           <h1>{t.gateTitle}</h1>
-          <div className="opening__rule"><i /><span>WILD ONE</span><i /></div>
-          <button className="cta cta--gold" onClick={() => setEntered(true)}>{t.enter}</button>
+          <p className="gate__sub">{t.gateSub}</p>
+          <button className="ritual-button" onClick={enterExperience}><span>{t.enter}</span><i aria-hidden="true"/></button>
         </div>
       </div>
 
-      <button className="language" onClick={switchLocale} aria-label="Switch language">{t.switch}</button>
+      <div className="hud">
+        <button className="hud__lang" onClick={switchLocale} aria-label="Switch language">{t.switch}</button>
+        <button className={`hud__sound ${soundOn ? "is-on" : ""}`} onClick={toggleSound} aria-label={soundOn ? t.soundOn : t.soundOff}><SoundGlyph/><span>{soundOn ? t.soundOn : t.soundOff}</span></button>
+      </div>
 
       <section className="hero" id="hero">
-        <div className="hero__sun" />
-        <div className="hero__mist" />
-        <Leaf className="hero__leaf hero__leaf--a" />
-        <Leaf className="hero__leaf hero__leaf--b" />
-        <Leaf className="hero__leaf hero__leaf--c" />
-        <Leaf className="hero__leaf hero__leaf--d" />
-        <BalloonArch />
-        <Animal type="giraffe" className="animal animal--giraffe" />
-        <Animal type="lion" className="animal animal--lion" />
-        <Animal type="elephant" className="animal animal--elephant" />
-
+        <div className="hero__aurora"/><div className="hero__mist hero__mist--a"/><div className="hero__mist hero__mist--b"/>
+        <div className="hero__particles" aria-hidden="true">{Array.from({ length: 34 }, (_, i) => <i key={i}/>)}</div>
+        <BalloonConstellation className="hero__balloons" />
+        <Leaf className="hero__leaf hero__leaf--1"/><Leaf className="hero__leaf hero__leaf--2"/><Leaf className="hero__leaf hero__leaf--3"/><Leaf className="hero__leaf hero__leaf--4"/>
+        <Giraffe className="hero__giraffe"/><Elephant className="hero__elephant"/><Lion className="hero__lion"/><Leopard className="hero__leopard"/><Monkey className="hero__monkey"/>
         <div className="hero__center">
-          <p className="micro hero__micro">{t.heroTop}</p>
-          <div className="hero__one">1</div>
-          <h2>Alexis <span>Alessandro</span></h2>
-          <div className="wild-mark">{t.wild}</div>
-          <p className="hero__date">{t.date}</p>
-          <a className="journey" href="#story">{t.journey}<span>↓</span></a>
+          <p className="micro hero__kicker">{t.heroKicker}</p>
+          <div className="hero__monolith" aria-hidden="true"><span>1</span><i/><b/></div>
+          <h2><span>{t.heroName.split(" ")[0]}</span><em>{t.heroName.split(" ").slice(1).join(" ")}</em></h2>
+          <div className="hero__wild"><i/><strong>{t.heroWild}</strong><i/></div>
+          <p className="hero__date">{t.heroDate}</p>
+          <a className="hero__descend" href="#proclamation"><span>{t.scroll}</span><b aria-hidden="true"/></a>
         </div>
       </section>
 
-      <section className="story" id="story">
-        <div className="story__vine" aria-hidden="true" />
-        <div className="story__copy reveal">
-          <p className="micro micro--forest">{t.storyTop}</p>
-          <h2>{t.storyTitle}</h2>
-          <p>{t.storyBody}</p>
-        </div>
-        <div className="memory-grid">
-          {["01", "02", "03"].map((number, i) => (
-            <figure className={`memory-card memory-card--${i + 1} reveal`} key={number}>
-              <div className="memory-card__art">
-                <span className="memory-card__number">{number}</span>
-                <Leaf className="memory-card__leaf" />
-                {i === 0 && <Animal type="lion" className="memory-card__animal" />}
-                {i === 1 && <Animal type="giraffe" className="memory-card__animal memory-card__animal--giraffe" />}
-                {i === 2 && <Animal type="elephant" className="memory-card__animal" />}
-              </div>
-              <figcaption>{t.photoSoon}</figcaption>
-            </figure>
-          ))}
+      <section className="proclamation" id="proclamation">
+        <div className="proclamation__halo"/>
+        <Leaf className="proclamation__leaf proclamation__leaf--l"/><Leaf className="proclamation__leaf proclamation__leaf--r"/>
+        <div className="proclamation__number" aria-hidden="true">01</div>
+        <div className="proclamation__content reveal">
+          <p className="micro micro--gold">{t.proclamationTop}</p>
+          <h2>{t.proclamationA}</h2>
+          <p className="proclamation__line">{t.proclamationB}</p>
+          <div className="proclamation__sigil"><span>A</span><i/><b>W1</b></div>
+          <p className="proclamation__note">{t.proclamationNote}</p>
         </div>
       </section>
 
-      <section className="details">
-        <div className="details__head reveal">
-          <p className="micro">{t.detailTop}</p>
-          <h2>{t.detailTitle}</h2>
+      <section className="route-scene">
+        <div className="route-scene__map" aria-hidden="true">
+          <Compass />
+          <svg className="route-line" viewBox="0 0 900 480">
+            <path d="M95 370C180 280 247 392 343 300S501 104 602 202 730 271 817 107" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="9 12" />
+            <circle cx="95" cy="370" r="7" fill="currentColor"/><circle cx="817" cy="107" r="11" fill="currentColor"/>
+          </svg>
+          <div className="route-scene__coordinates">26.2445° N<br/>80.2064° W</div>
         </div>
-        <div className="details__cards">
-          <article className="detail reveal"><span>01</span><p>{t.when}</p><h3>{t.whenValue}</h3></article>
-          <article className="detail reveal"><span>02</span><p>{t.where}</p><h3>{t.whereValue}</h3><a href={MAP_URL} target="_blank" rel="noreferrer">{t.map} ↗</a></article>
-          <article className="detail reveal"><span>03</span><p>{t.dress}</p><h3>{t.dressValue}</h3><div className="palette"><i/><i/><i/><i/><i/></div></article>
+        <div className="route-scene__content reveal">
+          <p className="micro micro--gold">{t.routeTop}</p>
+          <h2>{t.routeTitle}</h2>
+          <div className="coordinates-list">
+            <div><span>{t.dateLabel}</span><strong>{t.dateValue}</strong></div>
+            <div><span>{t.timeLabel}</span><strong>{t.timeValue}</strong></div>
+            <div><span>{t.locationLabel}</span><strong>{t.locationValue}</strong></div>
+          </div>
+          <a className="outline-button" href={MAP_URL} target="_blank" rel="noreferrer"><span>{t.map}</span><i/></a>
         </div>
       </section>
 
-      <section className="countdown">
-        <Leaf className="countdown__leaf countdown__leaf--l" />
-        <Leaf className="countdown__leaf countdown__leaf--r" />
-        <div className="countdown__inner reveal">
-          <p className="micro">{remaining.total === 0 ? t.today : t.countdown}</p>
-          {remaining.total > 0 && (
-            <div className="clock">
-              {[[remaining.days, t.days], [remaining.hours, t.hours], [remaining.minutes, t.minutes], [remaining.seconds, t.seconds]].map(([value, label]) => (
-                <div key={String(label)}><strong>{pad(Number(value))}</strong><span>{label}</span></div>
-              ))}
+      <section className="safari-code">
+        <div className="safari-code__texture"/>
+        <div className="safari-code__copy reveal">
+          <p className="micro micro--forest">{t.dressTop}</p>
+          <h2>{t.dressTitle}</h2>
+          <p>{t.dressBody}</p>
+        </div>
+        <div className="fabric-ribbons reveal" aria-label="Safari chic color palette">
+          <div className="fabric-ribbon fabric-ribbon--forest"><span>FOREST</span></div>
+          <div className="fabric-ribbon fabric-ribbon--sage"><span>SAGE</span></div>
+          <div className="fabric-ribbon fabric-ribbon--sand"><span>SAND</span></div>
+          <div className="fabric-ribbon fabric-ribbon--ivory"><span>IVORY</span></div>
+          <div className="fabric-ribbon fabric-ribbon--khaki"><span>KHAKI</span></div>
+        </div>
+      </section>
+
+      <section className="chamber">
+        <div className="chamber__rings" aria-hidden="true"><i/><i/><i/><i/></div>
+        <Leaf className="chamber__leaf chamber__leaf--1"/><Leaf className="chamber__leaf chamber__leaf--2"/>
+        <div className="chamber__content reveal">
+          <p className="micro micro--gold">{t.countdownTop}</p>
+          {remaining.total > 0 ? (
+            <div className="time-orbit">
+              <div><strong>{pad(remaining.days)}</strong><span>{t.days}</span></div>
+              <div><strong>{pad(remaining.hours)}</strong><span>{t.hours}</span></div>
+              <div><strong>{pad(remaining.minutes)}</strong><span>{t.minutes}</span></div>
+              <div><strong>{pad(remaining.seconds)}</strong><span>{t.seconds}</span></div>
+              <div className="time-orbit__core"><span>A</span><b>1</b></div>
             </div>
-          )}
-          <div className="countdown__seal"><span>A</span><small>09·20·26</small></div>
+          ) : <h2 className="chamber__today">{t.today}</h2>}
         </div>
       </section>
 
-      <section className="rsvp" id="rsvp">
-        <div className="rsvp__illustration reveal">
-          <BalloonArch />
-          <Animal type="lion" className="rsvp__lion" />
-          <div className="rsvp__one">1</div>
-          <Leaf className="rsvp__leaf rsvp__leaf--1" />
-          <Leaf className="rsvp__leaf rsvp__leaf--2" />
+      <section className="rsvp-scene" id="rsvp">
+        <div className="rsvp-scene__stage" aria-hidden="true">
+          <BalloonConstellation />
+          <Giraffe className="rsvp-scene__giraffe"/><Lion className="rsvp-scene__lion"/><Leaf className="rsvp-scene__leaf rsvp-scene__leaf--a"/><Leaf className="rsvp-scene__leaf rsvp-scene__leaf--b"/>
+          <div className="rsvp-scene__one">1</div>
         </div>
-        <div className="rsvp__panel reveal">
-          {!submitted ? (
-            <>
-              <p className="micro micro--forest">{t.rsvpTop}</p>
-              <h2>{t.rsvpTitle}</h2>
-              <form onSubmit={submitRsvp}>
-                <label htmlFor="guest">{t.name}</label>
-                <input id="guest" required minLength={2} maxLength={120} value={guestName} onChange={(e) => setGuestName(e.target.value)} placeholder={t.placeholder} />
-                <div className="choice">
-                  <button type="button" className={attendance === "yes" ? "active" : ""} onClick={() => setAttendance("yes")}>{t.yes}</button>
-                  <button type="button" className={attendance === "no" ? "active" : ""} onClick={() => setAttendance("no")}>{t.no}</button>
-                </div>
-                <button className="cta cta--forest" disabled={submitting}>{submitting ? t.sending : t.submit}</button>
-                {error && <p className="form-error">{t.error}</p>}
-                <a className="whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer">{t.whatsapp} ↗</a>
-              </form>
-            </>
-          ) : (
-            <div className="safari-pass">
-              <div className="safari-pass__top"><span>{t.pass}</span><strong>01</strong></div>
-              <div className="safari-pass__name"><small>{t.explorer}</small><h2>{guestName}</h2></div>
-              <div className="safari-pass__status"><small>{t.status}</small><strong>{attendance === "yes" ? t.confirmed : t.declined}</strong></div>
-              <div className="safari-pass__event">ALEXIS ALESSANDRO · WILD ONE · 20.09.2026</div>
-              <button className="cta cta--forest" onClick={shareInvitation}>{t.share}</button>
+        <div className="rsvp-panel reveal">
+          <p className="micro micro--forest">{t.rsvpTop}</p>
+          <h2>{t.rsvpTitle}</h2>
+          <p className="rsvp-panel__body">{t.rsvpBody}</p>
+          <form onSubmit={submitRsvp}>
+            <label htmlFor="guest-name">{t.name}</label>
+            <input id="guest-name" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder={t.placeholder} minLength={2} maxLength={120} required />
+            <div className="choice" role="group" aria-label="Attendance">
+              <button type="button" onClick={() => setAttendance("yes")} className={attendance === "yes" ? "active" : ""}>{t.yes}</button>
+              <button type="button" onClick={() => setAttendance("no")} className={attendance === "no" ? "active" : ""}>{t.no}</button>
             </div>
-          )}
+            <button className="forge-button" disabled={submitting} type="submit"><span>{submitting ? t.sending : t.submit}</span><i/></button>
+            {error && <p className="form-error">{t.error}</p>}
+            <a className="whatsapp-link" href={whatsappUrl} target="_blank" rel="noreferrer">{t.whatsapp}<i/></a>
+          </form>
         </div>
       </section>
 
-      <section className="extras">
-        <details className="reveal"><summary>{t.gifts}<span>+</span></summary><p>{t.giftsBody}</p></details>
+      <section className="gifts">
+        <details className="reveal"><summary><span>{t.gifts}</span><i/></summary><p>{t.giftsBody}</p></details>
       </section>
 
       <footer className="finale">
-        <BalloonArch />
-        <Animal type="giraffe" className="finale__giraffe" />
-        <Animal type="elephant" className="finale__elephant" />
-        <Animal type="lion" className="finale__lion" />
-        <Leaf className="finale__leaf finale__leaf--1" />
-        <Leaf className="finale__leaf finale__leaf--2" />
-        <div className="finale__copy reveal">
-          <p className="micro">{t.finaleSmall}</p>
-          <h2>{t.finale}</h2>
-          <div className="finale__name">ALEXIS ALESSANDRO</div>
+        <div className="finale__sun"/><div className="finale__mist"/>
+        <BalloonConstellation className="finale__balloons" />
+        <Giraffe className="finale__giraffe"/><Elephant className="finale__elephant"/><Lion className="finale__lion"/><Leopard className="finale__leopard"/><Monkey className="finale__monkey"/>
+        <Leaf className="finale__leaf finale__leaf--1"/><Leaf className="finale__leaf finale__leaf--2"/><Leaf className="finale__leaf finale__leaf--3"/>
+        <div className="finale__content reveal">
+          <p className="micro micro--gold">{t.finaleTop}</p>
+          <h2>{t.finaleTitle}</h2>
+          <div className="finale__seal"><span>1</span><b>WILD ONE</b></div>
+          <p>{t.finaleLine}</p>
         </div>
       </footer>
+
+      {submitted && (
+        <div className="pass-modal" role="dialog" aria-modal="true" aria-label="Safari Pass">
+          <div className="pass-modal__backdrop" onClick={() => setSubmitted(false)} />
+          <div className="safari-pass">
+            <div className="safari-pass__glow"/>
+            <Leaf className="safari-pass__leaf safari-pass__leaf--1"/><Leaf className="safari-pass__leaf safari-pass__leaf--2"/>
+            <div className="safari-pass__header"><span>{t.passTop}</span><b>01</b></div>
+            <div className="safari-pass__seal"><span>A</span><b>1</b></div>
+            <div className="safari-pass__main">
+              <span>{t.passGuest}</span>
+              <h3>{guestName.trim()}</h3>
+              <div><span>{t.passStatus}</span><strong>{attendance === "yes" ? t.confirmed : t.declined}</strong></div>
+            </div>
+            <div className="safari-pass__footer"><span>{t.passDate}</span><b>MARGATE · FL</b></div>
+            <button onClick={() => setSubmitted(false)}>{t.passClose}</button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
