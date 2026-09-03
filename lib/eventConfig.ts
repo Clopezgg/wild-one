@@ -20,7 +20,11 @@ export const eventConfig = {
   journeyVersion: "living-safari-v5",
   canonicalUrl:
     process.env.NEXT_PUBLIC_SITE_URL ??
-    "https://alexis-wild-one-guided-safari-v4.vercel.app",
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000"),
 } as const;
 
 const query = encodeURIComponent(eventConfig.address.full);

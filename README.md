@@ -4,7 +4,7 @@ A bilingual, mobile-first living safari invitation for Alexis Alessandro’s fir
 
 ## Production
 
-Canonical production: `https://alexis-wild-one-guided-safari-v4.vercel.app`
+Canonical production URL is whatever domain the connected Vercel project serves in production (set `NEXT_PUBLIC_SITE_URL` on that project to pin it explicitly). The previous `alexis-wild-one-guided-safari-v4.vercel.app` alias is retired — confirm the current production alias in the Vercel dashboard for this project rather than assuming a fixed URL.
 
 Event details are centralized in `lib/eventConfig.ts`:
 
@@ -46,7 +46,7 @@ SUPABASE_URL=https://sqchlnhkceztcznkjctg.supabase.co
 SUPABASE_SECRET_KEY=sb_secret_...
 NEXT_PUBLIC_SUPABASE_URL=https://sqchlnhkceztcznkjctg.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
-NEXT_PUBLIC_SITE_URL=https://alexis-wild-one-guided-safari-v4.vercel.app
+NEXT_PUBLIC_SITE_URL=https://<your-production-domain>.vercel.app
 ```
 
 The secret key is server-only. Never prefix it with `NEXT_PUBLIC_`.
