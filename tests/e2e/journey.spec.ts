@@ -5,7 +5,7 @@ test("complete bilingual safari journey and returning identity", async ({ page }
   page.on("console", (message) => { if (message.type() === "error" && !message.text().includes("WebGL")) errors.push(message.text()); });
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "WILD ONE" })).toBeVisible();
-  await expect(page.getByText("SEPTEMBER 20 · 2026")).toBeVisible();
+  await expect(page.getByLabel("Invitation entrance").getByText("SEPTEMBER 20 · 2026")).toBeVisible();
   await page.getByRole("button", { name: /ENTER THE SAFARI/ }).click();
   await expect(page.getByText("THE JUNGLE HAS CHOSEN YOU")).toBeVisible();
   await page.getByLabel("Cambiar a español").click();
