@@ -12,18 +12,17 @@ export function createIcs() {
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//NEXORA//Wild One//EN",
+    "PRODID:-//NEXORA//Juan Alexander Wild One//ES",
     "CALSCALE:GREGORIAN",
     "BEGIN:VEVENT",
-    `UID:wild-one-20260920@${new URL(eventConfig.canonicalUrl).hostname}`,
+    `UID:juan-alexander-wild-one-20260926@${new URL(eventConfig.canonicalUrl).hostname}`,
     `DTSTAMP:${stamp(new Date().toISOString())}`,
     `DTSTART:${stamp(eventConfig.startsAt)}`,
     `DTEND:${stamp(eventConfig.provisionalEnd)}`,
-    `SUMMARY:${escapeIcs("Alexis Alessandro — Wild One")}`,
+    `SUMMARY:${escapeIcs("Juan Alexander — Wild One")}`,
     `LOCATION:${escapeIcs(eventConfig.address.full)}`,
-    `DESCRIPTION:${escapeIcs("A daylight magical safari celebration.")}`,
+    `DESCRIPTION:${escapeIcs("Juan Alexander te invita a celebrar su primer cumpleaños. ¡Te esperamos, no faltes!")}`,
     "END:VEVENT",
     "END:VCALENDAR",
   ].join("\r\n");
 }
-
