@@ -2,6 +2,9 @@
 
 Premium bilingual first-birthday invitation experience for Alexis Alessandro.
 
+## Live
+https://wild-one.vercel.app
+
 ## Event
 - September 20, 2026
 - 5:00 PM (America/New_York)
@@ -22,6 +25,7 @@ Premium bilingual first-birthday invitation experience for Alexis Alessandro.
 - WhatsApp fallback confirmation
 - Optional gift note
 - Responsive mobile-first layout with reduced-motion support
+- Custom social preview card and app icon
 
 ## Stack
 - Next.js
