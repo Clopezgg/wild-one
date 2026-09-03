@@ -5,6 +5,7 @@ import { eventConfig } from "@/lib/eventConfig";
 import "./globals.css";
 import "./premium.css";
 import "./official.css";
+import "./official-mobile-fix.css";
 
 const display = Cormorant_Garamond({ subsets: ["latin"], variable: "--font-display", weight: ["600", "700"], display: "swap" });
 const body = Manrope({ subsets: ["latin"], variable: "--font-body", display: "swap" });
