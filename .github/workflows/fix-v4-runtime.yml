@@ -1,0 +1,73 @@
+name: Fix V4 Safari runtime
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch-v4:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch V4 initialization and loading safety
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path('public/v4/index.html')
+          s = p.read_text()
+          original = s
+
+          # Critical iPhone/Safari freeze: applyLang() called paintQuest() before
+          # leafSet was initialized, causing a TDZ ReferenceError and stopping
+          # the entire module before WebGL and the enter handler were created.
+          s = s.replace(
+              "paintStations();paintQuest();updateWA();}",
+              "paintStations();updateWA();}"
+          )
+
+          # Once initialization is complete, language changes may safely repaint
+          # the quest counter.
+          s = s.replace(
+              "document.getElementById('lang').onclick=()=>{locale=locale==='en'?'es':'en';localStorage.setItem('wild-one-locale',locale);applyLang()};",
+              "document.getElementById('lang').onclick=()=>{locale=locale==='en'?'es':'en';localStorage.setItem('wild-one-locale',locale);applyLang();paintQuest()};"
+          )
+
+          # The entry should never be visually held hostage by asset downloads.
+          s = s.replace(
+              "<button class=\"primary\" id=\"enter\" disabled",
+              "<button class=\"primary\" id=\"enter\""
+          )
+
+          # Make the core-ready timer purely cosmetic; interaction is available
+          # as soon as the runtime reaches this point.
+          s = s.replace(
+              "let loadedCore=0;function coreReady(){loadedCore++;if(loadedCore>=1){document.getElementById('loading').style.display='none';document.getElementById('enter').disabled=false}}setTimeout(coreReady,1200);",
+              "let loadedCore=0;function coreReady(){loadedCore++;document.getElementById('loading').style.display='none';document.getElementById('enter').disabled=false}setTimeout(coreReady,650);"
+          )
+
+          if s == original:
+              print('No patch needed; V4 already contains the runtime fix.')
+          else:
+              p.write_text(s)
+              print('V4 runtime patched successfully.')
+          PY
+
+      - name: Commit runtime fix
+        run: |
+          if git diff --quiet -- public/v4/index.html; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/v4/index.html
+          git commit -m "fix: unblock V4 Safari initialization on iPhone"
+          git push
