@@ -92,7 +92,7 @@ function responseWithCookie(body: unknown, token: string, init?: ResponseInit) {
   const response = NextResponse.json(body, init);
   response.cookies.set(COOKIE, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.VERCEL === "1",
     sameSite: "lax",
     maxAge: 60 * 60 * 24 * 365 * 2,
     path: "/",
