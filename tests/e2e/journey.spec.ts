@@ -1,8 +1,5 @@
 import { expect, test } from "@playwright/test";
 
-const expeditionResponse = (response: { url(): string; request(): { method(): string } }) =>
-  response.url().includes("/api/expedition?locale=es") && response.request().method() === "GET";
-
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(HTMLMediaElement.prototype, "play", {
@@ -16,27 +13,26 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test("complete Juan Alexander official bilingual safari journey and returning identity", async ({ page }) => {
+test("complete Juan Alexander official bilingual safari journey and returning identity", async ({ page, context }) => {
   const errors: string[] = [];
   page.on("console", (message) => { if (message.type() === "error" && !message.text().includes("WebGL")) errors.push(message.text()); });
 
-  const initialExpedition = page.waitForResponse(expeditionResponse);
   await page.goto("/");
-  await initialExpedition;
   await expect(page.getByRole("heading", { name: "MI PRIMER AÑO" })).toBeVisible();
   await expect(page.getByText("JUAN ALEXANDER", { exact: true }).first()).toBeVisible();
   await expect(page.getByText(/26 DE SEPTIEMBRE · 2026/)).toBeVisible();
   await expect(page.getByText("1:00 PM").first()).toBeVisible();
 
+  await expect.poll(async () => (await context.cookies()).some((cookie) => cookie.name === "juan_alexander_expedition")).toBe(true);
+  const beforeCookie = (await context.cookies()).find((cookie) => cookie.name === "juan_alexander_expedition")?.value;
+  expect(beforeCookie).toBeTruthy();
+
   await page.getByRole("button", { name: "ENTRAR A MI SAFARI" }).click();
   await expect(page.getByText("LA SELVA TE HA ELEGIDO")).toBeVisible();
 
-  const before = await page.evaluate(async () => (await fetch("/api/expedition?locale=es")).json());
-  const reloadExpedition = page.waitForResponse(expeditionResponse);
   await page.reload();
-  await reloadExpedition;
-  const after = await page.evaluate(async () => (await fetch("/api/expedition?locale=es")).json());
-  expect(after.animalKey).toBe(before.animalKey);
+  await expect(page.getByRole("heading", { name: "MI PRIMER AÑO" })).toBeVisible();
+  await expect.poll(async () => (await context.cookies()).find((cookie) => cookie.name === "juan_alexander_expedition")?.value).toBe(beforeCookie);
 
   await page.getByRole("button", { name: "ENTRAR A MI SAFARI" }).click();
   await expect(page.getByRole("button", { name: "MAPA VIVO DEL SAFARI" })).toBeVisible();
