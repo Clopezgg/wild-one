@@ -16,4 +16,41 @@
     white-space: nowrap;
     text-overflow: ellipsis;
   }
+
+  /* Keep the primary entry action visible immediately on iPhone/Safari.
+     The hero can remain editorial and immersive, but entering the experience
+     must never require a scroll or browser-toolbar movement. */
+  .official-hero {
+    min-height: 100svh;
+    height: 100svh;
+    padding-bottom: calc(92px + env(safe-area-inset-bottom));
+  }
+
+  .official-hero-copy {
+    padding-bottom: 0;
+  }
+
+  .official-hero .official-enter {
+    position: fixed;
+    z-index: 190;
+    left: 50%;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    width: min(calc(100vw - 28px), 360px);
+    min-height: 56px;
+    margin: 0;
+    padding-inline: 20px;
+    border: 1px solid rgba(255, 249, 232, .95);
+    background: linear-gradient(135deg, rgba(28, 72, 49, .99), rgba(18, 55, 38, .96));
+    box-shadow: 0 16px 42px rgba(10, 35, 23, .34), 0 0 0 5px rgba(255, 248, 230, .08);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .official-hero--gone .official-enter {
+    opacity: 0;
+    pointer-events: none;
+  }
 }
