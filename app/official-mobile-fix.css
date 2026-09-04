@@ -1,9 +1,42 @@
-/* Final production hardening for Juan Alexander official invitation. */
-@media (max-width: 480px) {
+/* Final production hardening for Juan Alexander official invitation.
+   The first screen must always show readable invitation copy AND the primary CTA
+   without requiring Safari toolbar movement or an initial scroll. */
+
+@media (max-width: 820px) {
+  .official-hero {
+    min-height: 100svh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .official-hero-copy {
+    text-shadow:
+      0 2px 3px rgba(8, 31, 21, .72),
+      0 8px 28px rgba(8, 31, 21, .52);
+  }
+
+  .official-hero-copy h1,
+  .official-hero-copy > span,
+  .official-date,
+  .official-intro,
+  .official-kicker {
+    text-wrap: balance;
+  }
+}
+
+@media (max-width: 600px) {
   .official-controls {
-    left: 12px;
-    right: 12px;
-    max-width: calc(100vw - 24px);
+    left: max(10px, env(safe-area-inset-left));
+    right: max(10px, env(safe-area-inset-right));
+    top: max(10px, env(safe-area-inset-top));
+    max-width: calc(100vw - 20px - env(safe-area-inset-left) - env(safe-area-inset-right));
+    gap: 6px;
+  }
+
+  .official-controls button {
+    height: 44px;
+    min-width: 44px;
+    padding-inline: 12px;
   }
 
   .official-controls .official-map-button {
@@ -11,46 +44,217 @@
     align-items: center;
     justify-content: center;
     min-width: 0;
-    max-width: min(46vw, 156px);
+    max-width: min(47vw, 164px);
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
   }
 
-  /* Keep the primary entry action visible immediately on iPhone/Safari.
-     The hero can remain editorial and immersive, but entering the experience
-     must never require a scroll or browser-toolbar movement. */
   .official-hero {
-    min-height: 100svh;
-    height: 100svh;
-    padding-bottom: calc(92px + env(safe-area-inset-bottom));
+    padding:
+      calc(56px + env(safe-area-inset-top))
+      max(14px, env(safe-area-inset-right))
+      calc(86px + env(safe-area-inset-bottom))
+      max(14px, env(safe-area-inset-left));
+  }
+
+  .official-portrait-wrap {
+    right: -9vw;
+    top: clamp(4.4rem, 8svh, 6.2rem);
+    width: min(70vw, 340px);
+    max-height: 47svh;
   }
 
   .official-hero-copy {
-    padding-bottom: 0;
+    position: absolute;
+    z-index: 8;
+    left: max(16px, env(safe-area-inset-left));
+    right: auto;
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    width: min(83vw, 370px);
+    max-width: none;
+    padding: .8rem 1rem .7rem 0;
+    border-radius: 0 28px 28px 0;
+    background: linear-gradient(
+      90deg,
+      rgba(12, 45, 31, .50) 0%,
+      rgba(12, 45, 31, .27) 68%,
+      rgba(12, 45, 31, 0) 100%
+    );
   }
 
+  .official-kicker {
+    font-size: clamp(.53rem, 2vw, .62rem);
+    letter-spacing: .20em;
+  }
+
+  .official-hero-copy > span {
+    margin: .38rem 0 .08rem;
+    font-size: clamp(.86rem, 3.5vw, 1.05rem);
+    line-height: 1.1;
+  }
+
+  .official-hero-copy h1 {
+    max-width: 6.1ch;
+    margin: .08rem 0 .32rem;
+    font-size: clamp(3.25rem, 17vw, 5.15rem);
+    line-height: .80;
+    letter-spacing: -.045em;
+  }
+
+  .official-date {
+    margin: .48rem 0 .3rem;
+    font-size: clamp(.58rem, 2.4vw, .70rem);
+    line-height: 1.4;
+    letter-spacing: .13em;
+  }
+
+  .official-intro {
+    max-width: 31ch;
+    margin: .35rem 0 .45rem;
+    font-size: clamp(.76rem, 3vw, .88rem);
+    line-height: 1.38;
+  }
+
+  /* Primary action remains anchored to the visual viewport. */
   .official-hero .official-enter {
     position: fixed;
     z-index: 190;
     left: 50%;
-    bottom: calc(12px + env(safe-area-inset-bottom));
+    bottom: calc(14px + env(safe-area-inset-bottom));
     transform: translateX(-50%);
-    width: min(calc(100vw - 28px), 360px);
+    width: min(calc(100vw - 28px - env(safe-area-inset-left) - env(safe-area-inset-right)), 380px);
     min-height: 56px;
     margin: 0;
     padding-inline: 20px;
-    border: 1px solid rgba(255, 249, 232, .95);
-    background: linear-gradient(135deg, rgba(28, 72, 49, .99), rgba(18, 55, 38, .96));
-    box-shadow: 0 16px 42px rgba(10, 35, 23, .34), 0 0 0 5px rgba(255, 248, 230, .08);
+    border: 1px solid rgba(255, 249, 232, .96);
+    background: linear-gradient(135deg, rgba(28, 72, 49, .995), rgba(18, 55, 38, .98));
+    color: #fffaf0;
+    box-shadow: 0 16px 42px rgba(10, 35, 23, .40), 0 0 0 5px rgba(255, 248, 230, .09);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+    font-size: .69rem;
+    letter-spacing: .14em;
   }
 
   .official-hero--gone .official-enter {
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
+  }
+}
+
+/* iPhones and other phones where browser chrome leaves a short visual viewport. */
+@media (max-width: 480px) and (max-height: 760px) {
+  .official-portrait-wrap {
+    right: -10vw;
+    top: 4.2rem;
+    width: 65vw;
+    max-height: 40svh;
+  }
+
+  .official-hero-copy {
+    bottom: calc(78px + env(safe-area-inset-bottom));
+    width: min(87vw, 350px);
+    padding-top: .58rem;
+    padding-bottom: .48rem;
+  }
+
+  .official-hero-copy > span {
+    margin-top: .25rem;
+    font-size: .82rem;
+  }
+
+  .official-hero-copy h1 {
+    font-size: clamp(2.85rem, 14.8vw, 4.1rem);
+    line-height: .79;
+    margin-bottom: .22rem;
+  }
+
+  .official-date {
+    margin: .32rem 0 .2rem;
+    font-size: .57rem;
+    line-height: 1.32;
+  }
+
+  .official-intro {
+    margin: .25rem 0 .25rem;
+    max-width: 33ch;
+    font-size: .74rem;
+    line-height: 1.30;
+  }
+}
+
+/* Very narrow phones. */
+@media (max-width: 360px) {
+  .official-controls .official-map-button {
+    max-width: 42vw;
+    padding-inline: 10px;
+  }
+
+  .official-portrait-wrap {
+    right: -14vw;
+    width: 69vw;
+  }
+
+  .official-hero-copy {
+    width: 90vw;
+  }
+
+  .official-hero-copy h1 {
+    font-size: clamp(2.75rem, 15vw, 3.65rem);
+  }
+
+  .official-intro {
+    font-size: .72rem;
+  }
+}
+
+/* Landscape phone: preserve access first, then compress the editorial layer. */
+@media (max-width: 932px) and (max-height: 520px) and (orientation: landscape) {
+  .official-hero {
+    padding-top: calc(50px + env(safe-area-inset-top));
+  }
+
+  .official-portrait-wrap {
+    top: 3.4rem;
+    right: 3vw;
+    width: min(34vw, 280px);
+    max-height: 62svh;
+  }
+
+  .official-hero-copy {
+    left: max(18px, env(safe-area-inset-left));
+    bottom: calc(70px + env(safe-area-inset-bottom));
+    width: min(55vw, 470px);
+    padding: .45rem .9rem .4rem 0;
+  }
+
+  .official-hero-copy h1 {
+    font-size: clamp(2.65rem, 8vw, 4.3rem);
+    max-width: 8ch;
+  }
+
+  .official-hero-copy > span {
+    font-size: .78rem;
+  }
+
+  .official-date {
+    margin: .22rem 0;
+    font-size: .55rem;
+  }
+
+  .official-intro {
+    max-width: 48ch;
+    margin: .18rem 0;
+    font-size: .69rem;
+    line-height: 1.25;
+  }
+
+  .official-hero .official-enter {
+    min-height: 50px;
+    width: min(340px, calc(100vw - 32px));
   }
 }
