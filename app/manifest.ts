@@ -1,0 +1,1 @@
+import type{MetadataRoute}from"next";export default function manifest():MetadataRoute.Manifest{return{name:"C · A — Una Noche",short_name:"C · A",description:"Una fecha · dos historias.",start_url:"/",display:"standalone",background_color:"#05070d",theme_color:"#05070d"}}
