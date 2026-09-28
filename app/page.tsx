@@ -1,5 +1,1 @@
-import JuanAlexanderOfficial from "@/components/safari/JuanAlexanderOfficial";
-
-export default function HomePage() {
-  return <JuanAlexanderOfficial />;
-}
+export default function HomePage(){return <main className="section center"><div className="section-inner"><div className="eyebrow">C · A — UNA NOCHE</div><h1 className="display hero-title">UNA INVITACIÓN<br/>PARA TI</h1><div className="light-line"/><p className="muted intro">Esta invitación es personal. Usa el enlace que recibiste para abrir tu invitación.</p></div></main>}
