@@ -42,3 +42,13 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: vercel project inspect --non-interactive --token="$VERCEL_TOKEN"
+
+      - name: Smoke test production
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          body=$(vercel curl https://candida-alberto-2026-alpha.vercel.app --token="$VERCEL_TOKEN")
+          echo "$body"
+          echo "$body" | grep -q "CÁNDIDA"
+          echo "$body" | grep -q "ALBERTO"
+          echo "$body" | grep -q "OCTUBRE 2026"
