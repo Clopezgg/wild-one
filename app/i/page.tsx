@@ -134,7 +134,7 @@ function PersonalInvitation({ invitation, token }: { invitation: Invitation; tok
               <h1><span>Cándida</span><b>&amp;</b><span>Alberto</span></h1>
               <p className="hero-subtitle">UNA FECHA · DOS HISTORIAS</p>
               <div className="hero-date-lockup"><strong>03</strong><span>OCTUBRE<br /><b>2026</b></span></div>
-              <p className="hero-time">SÁBADO · 8:00 PM</p>
+              <p className="hero-time">SÁBADO · 7:00 PM</p>
               <div className="hero-bottom-line">PARA {guestLabel.toUpperCase()} · {places.toUpperCase()}</div>
             </article>
           </section>
@@ -149,7 +149,7 @@ function PersonalInvitation({ invitation, token }: { invitation: Invitation; tok
           <section className="lux-card-scene date-scene">
             <article className="lux-dark-card">
               <p className="lux-overline">GUARDA LA FECHA</p><div className="date-display"><strong>03</strong><div><span>OCTUBRE</span><b>2026</b></div></div>
-              <div className="date-details"><div><small>SÁBADO</small><strong>8:00 PM</strong></div><div><small>LUGAR</small><strong>8251 SW 5th Ct</strong><span>North Lauderdale, FL 33068</span></div></div>
+              <div className="date-details"><div><small>SÁBADO</small><strong>7:00 PM</strong></div><div><small>LUGAR</small><strong>8251 SW 5th Ct</strong><span>North Lauderdale, FL 33068</span></div></div>
               <div className="lux-actions"><a href={eventConfig.maps} target="_blank" rel="noreferrer">VER UBICACIÓN</a><a href="/api/calendar">AÑADIR AL CALENDARIO</a></div>
             </article>
           </section>
