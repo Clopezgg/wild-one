@@ -28,25 +28,25 @@ export default function HomePage() {
             <div className="lux-envelope-shadow" />
             <div className="lux-envelope-body" />
             <div className="lux-envelope-liner">
-              <span>C · A</span>
+              <span>C</span>
               <small>03 · 10 · 2026</small>
             </div>
             <div className="lux-envelope-card">
-              <small>UNA FECHA · DOS HISTORIAS</small>
+              <small>UNA FECHA · UNA HISTORIA</small>
               <strong>CÁNDIDA</strong>
               <em>&amp;</em>
               <strong>ALBERTO</strong>
               <span>03 OCTUBRE 2026</span>
             </div>
             <div className="lux-envelope-flap">
-              <span>C · A</span>
+              <span>C</span>
             </div>
             <div className="lux-envelope-front">
               <span className="lux-corner tl" /><span className="lux-corner tr" />
               <span className="lux-corner bl" /><span className="lux-corner br" />
               <div className="lux-address">
                 <small>INVITACIÓN ESPECIAL</small>
-                <strong>C · A</strong>
+                <strong>C</strong>
               </div>
             </div>
             <div className="lux-seal"><span>C</span><i>·</i><span>A</span></div>
@@ -65,29 +65,28 @@ export default function HomePage() {
           <section className="lux-card-scene hero-scene">
             <article className="hero-card">
               <div className="hero-card-border" />
-              <p className="lux-overline">C · A — UNA NOCHE</p>
+              <p className="lux-overline">C — UNA NOCHE</p>
               <div className="hero-rule"><i /></div>
               <p className="hero-greeting">Tenemos el gusto de invitarte</p>
               <h1><span>Cándida</span><b>&amp;</b><span>Alberto</span></h1>
-              <p className="hero-subtitle">UNA FECHA · DOS HISTORIAS</p>
+              <p className="hero-subtitle">UNA FECHA · UNA HISTORIA</p>
               <div className="hero-date-lockup">
                 <strong>03</strong>
                 <span>OCTUBRE<br /><b>2026</b></span>
               </div>
               <p className="hero-time">SÁBADO · 7:00 PM</p>
-              <div className="hero-bottom-line">CELEBRAMOS 66 · 38 AÑOS</div>
+              <div className="hero-bottom-line">CELEBRAMOS 66 AÑOS</div>
             </article>
           </section>
 
           <section className="lux-card-scene paper-scene">
             <article className="lux-paper-card">
               <p className="lux-overline">LA CELEBRACIÓN</p>
-              <div className="paper-monogram">C · A</div>
-              <h2>Dos historias.<br /><i>Una noche.</i></h2>
+              <div className="paper-monogram">C</div>
+              <h2>Una historia.<br /><i>Una noche.</i></h2>
               <div className="age-grid">
                 <div><small>CÁNDIDA</small><strong>66</strong><span>AÑOS</span></div>
-                <div className="age-divider" />
-                <div><small>ALBERTO</small><strong>38</strong><span>AÑOS</span></div>
+                
               </div>
               <p className="paper-copy">Una noche para celebrar la vida, compartir recuerdos y reunir a quienes queremos cerca.</p>
             </article>
@@ -114,7 +113,7 @@ export default function HomePage() {
           <footer className="lux-closing">
             <div className="closing-monogram">C <i>·</i> A</div>
             <p>03 · 10 · 2026</p>
-            <small>UNA FECHA · DOS HISTORIAS</small>
+            <small>UNA FECHA · UNA HISTORIA</small>
           </footer>
         </div>
       )}
