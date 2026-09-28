@@ -23,12 +23,14 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Pull Vercel production configuration
+      - name: Reset and link Vercel project
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+        run: |
+          rm -rf .vercel
+          vercel link --yes --project="$VERCEL_PROJECT_ID" --token="$VERCEL_TOKEN"
 
-      - name: Build locally with Node 22
+      - name: Build Vercel output locally
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: vercel build --prod --token="$VERCEL_TOKEN"
