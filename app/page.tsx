@@ -102,7 +102,7 @@ export default function HomePage() {
               </div>
               <div className="date-details">
                 <div><small>SÁBADO</small><strong>8:00 PM</strong></div>
-                <div><small>LUGAR</small><strong>8261 SW 8th St</strong><span>North Lauderdale, FL 33068</span></div>
+                <div><small>LUGAR</small><strong>8251 SW 5th Ct</strong><span>North Lauderdale, FL 33068</span></div>
               </div>
               <div className="lux-actions">
                 <a href={eventConfig.maps} target="_blank" rel="noreferrer">VER UBICACIÓN</a>
