@@ -148,7 +148,7 @@ function PersonalInvitation({ invitation, token }: { invitation: Invitation; tok
           <section className="reveal-hero">
             <div className="reveal-frame">
               <p className="eyebrow">UNA FECHA · DOS HISTORIAS</p>
-              <div className="ornament-line"><span>✦</span></div>
+              <div className="ornament-line"><span aria-hidden="true" /></div>
               <p className="hello">Hola, {guestLabel}.</p>
               <h1 className="script-title">Cándida <span>&amp;</span> Alberto</h1>
               <p className="hero-copy">Con mucha alegría queremos compartir contigo una noche muy especial. Nos encantaría que nos acompañes a celebrar a Cándida y Alberto.</p>
@@ -163,10 +163,10 @@ function PersonalInvitation({ invitation, token }: { invitation: Invitation; tok
               <p className="eyebrow">CELEBRAMOS A</p>
               <div className="celebrants">
                 <article><span>C</span><small>CÁNDIDA</small><strong>66</strong><em>AÑOS</em></article>
-                <div className="celebrants-divider">✦</div>
+                <div className="celebrants-divider" aria-hidden="true" />
                 <article><span>A</span><small>ALBERTO</small><strong>38</strong><em>AÑOS</em></article>
               </div>
-              <div className="ornament-line"><span>◆</span></div>
+              <div className="ornament-line"><span aria-hidden="true" /></div>
               <p className="story-copy">Una fecha. Dos historias. Dos edades. Y la oportunidad de reunir a las personas que forman parte de nuestros recuerdos.</p>
             </div>
           </section>
@@ -180,7 +180,7 @@ function PersonalInvitation({ invitation, token }: { invitation: Invitation; tok
                 <div><small>SÁBADO</small><strong>8:00 PM</strong></div>
                 <div><small>LUGAR</small><strong>8261 SW 8th St</strong><span>North Lauderdale, FL 33068</span></div>
               </div>
-              <a className="gold-button" href={eventConfig.maps} target="_blank" rel="noreferrer">VER UBICACIÓN <b>↗</b></a>
+              <a className="gold-button" href={eventConfig.maps} target="_blank" rel="noreferrer">VER UBICACIÓN <b>ABRIR</b></a>
               <a className="text-link" href="/api/calendar">AGREGAR AL CALENDARIO</a>
             </div>
           </section>
@@ -207,8 +207,8 @@ function PersonalInvitation({ invitation, token }: { invitation: Invitation; tok
                   </label>
                 )}
                 <label>Mensaje para Cándida &amp; Alberto<textarea rows={4} maxLength={500} value={message} onChange={e => setMessage(e.target.value)} placeholder="Déjanos unas palabras…" /></label>
-                <button className="gold-button full" disabled={saving || att === null} type="submit">{saving ? "GUARDANDO…" : "CONFIRMAR ASISTENCIA"} <b>→</b></button>
-                {saved && <div className="rsvp-success"><strong>✓ RESPUESTA RECIBIDA</strong><span>{att ? "Nos vemos el 3 de octubre. Será una noche muy especial." : "Gracias por hacérnoslo saber."}</span></div>}
+                <button className="gold-button full" disabled={saving || att === null} type="submit">{saving ? "GUARDANDO…" : "CONFIRMAR ASISTENCIA"}</button>
+                {saved && <div className="rsvp-success"><strong>RESPUESTA RECIBIDA</strong><span>{att ? "Nos vemos el 3 de octubre. Será una noche muy especial." : "Gracias por hacérnoslo saber."}</span></div>}
               </form>
             </div>
           </section>
