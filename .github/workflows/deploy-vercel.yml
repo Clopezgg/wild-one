@@ -20,32 +20,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Verify local production build
+      - name: Verify production build
         run: npm run build
 
       - name: Install Vercel CLI
         run: npm install --global vercel@60.1.3
 
-      - name: Deploy production and capture URL
-        id: deploy
+      - name: Link dedicated Vercel project
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          set +e
-          vercel deploy --prod --yes --token="$VERCEL_TOKEN" 2>&1 | tee vercel-deploy.log
-          status=${PIPESTATUS[0]}
-          url=$(grep -Eo 'https://[^[:space:]]+\.vercel\.app' vercel-deploy.log | tail -1 | sed 's/[),]$//')
-          echo "url=$url" >> "$GITHUB_OUTPUT"
-          exit $status
+          rm -rf .vercel
+          vercel link --yes --scope="carlos-lopez" --project="candida-alberto-2026" --token="$VERCEL_TOKEN"
 
-      - name: Inspect Vercel deployment logs
-        if: always()
+      - name: Deploy production
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          DEPLOY_URL: ${{ steps.deploy.outputs.url }}
-        run: |
-          if [ -n "$DEPLOY_URL" ]; then
-            vercel inspect "$DEPLOY_URL" --logs --token="$VERCEL_TOKEN" || true
-          else
-            echo "No deployment URL was captured."
-          fi
+        run: vercel deploy --prod --yes --token="$VERCEL_TOKEN"
+
+      - name: Verify deployment
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel project inspect --non-interactive --token="$VERCEL_TOKEN"
