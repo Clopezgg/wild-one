@@ -74,7 +74,7 @@ export default function HomePage() {
                 <strong>03</strong>
                 <span>OCTUBRE<br /><b>2026</b></span>
               </div>
-              <p className="hero-time">SÁBADO · 8:00 PM</p>
+              <p className="hero-time">SÁBADO · 7:00 PM</p>
               <div className="hero-bottom-line">CELEBRAMOS 66 · 38 AÑOS</div>
             </article>
           </section>
@@ -101,7 +101,7 @@ export default function HomePage() {
                 <div><span>OCTUBRE</span><b>2026</b></div>
               </div>
               <div className="date-details">
-                <div><small>SÁBADO</small><strong>8:00 PM</strong></div>
+                <div><small>SÁBADO</small><strong>7:00 PM</strong></div>
                 <div><small>LUGAR</small><strong>8251 SW 5th Ct</strong><span>North Lauderdale, FL 33068</span></div>
               </div>
               <div className="lux-actions">
