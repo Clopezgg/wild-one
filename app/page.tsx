@@ -68,7 +68,7 @@ export default function HomePage() {
               <p className="lux-overline">C — UNA NOCHE</p>
               <div className="hero-rule"><i /></div>
               <p className="hero-greeting">Tenemos el gusto de invitarte</p>
-              <h1><span>Cándida</span><b>&amp;</b><span>Alberto</span></h1>
+              <h1><span>Cándida</span></h1>
               <p className="hero-subtitle">UNA FECHA · UNA HISTORIA</p>
               <div className="hero-date-lockup">
                 <strong>03</strong>
@@ -111,7 +111,7 @@ export default function HomePage() {
           </section>
 
           <footer className="lux-closing">
-            <div className="closing-monogram">C <i>·</i> A</div>
+            <div className="closing-monogram">C</div>
             <p>03 · 10 · 2026</p>
             <small>UNA FECHA · UNA HISTORIA</small>
           </footer>
