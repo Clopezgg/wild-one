@@ -9,8 +9,8 @@ function tokenFromPath() {
   return p[0] === "i" ? (p[1] ?? "").toLowerCase() : "";
 }
 
-function Spark({ className = "" }: { className?: string }) {
-  return <span className={"spark " + className} aria-hidden="true">✦</span>;
+function Ornament({ className = "" }: { className?: string }) {
+  return <span className={"ornament " + className} aria-hidden="true">✦</span>;
 }
 
 export default function Page() {
@@ -35,7 +35,7 @@ export default function Page() {
     })();
   }, []);
 
-  if (l) return <main className="loading invitation-loading"><div><div className="monogram-mark">C<span>·</span>A</div><div className="eyebrow">PREPARANDO TU NOCHE</div></div></main>;
+  if (l) return <main className="loading invitation-loading"><div className="loading-card"><div className="seal"><span>C</span><i>·</i><span>A</span></div><div className="eyebrow">PREPARANDO TU NOCHE</div></div></main>;
   if (!i) return <main className="error"><div><div className="eyebrow">C · A</div><h1 className="display hero-title">INVITACIÓN NO DISPONIBLE</h1><p className="muted">{e}</p></div></main>;
   return <Experience invitation={i} token={token} />;
 }
@@ -63,78 +63,96 @@ function Experience({ invitation, token }: { invitation: Invitation; token: stri
 
   return (
     <main className="invitation">
-      <section className="invite-cover">
-        <div className="hero-orbit orbit-one" /><div className="hero-orbit orbit-two" /><Spark className="spark-a" /><Spark className="spark-b" />
-        {!open ? (
-          <div className="invite-cover-card">
-            <div className="eyebrow">UNA FECHA · DOS HISTORIAS</div>
-            <div className="monogram-mark">C<span>·</span>A</div>
-            <div className="invite-cover-rule" />
-            <p className="invite-for">UNA INVITACIÓN PARA CELEBRAR A</p>
-            <h1 className="display invite-name">{p.name}</h1>
-            <div className="invite-age"><strong>{p.age}</strong><span>AÑOS</span></div>
-            <button className="cta cta-large" onClick={() => setOpen(true)}>ABRIR INVITACIÓN <span>↓</span></button>
-            <div className="invite-date">03 OCTUBRE 2026 · 8:00 PM</div>
-          </div>
-        ) : (
-          <div className="invite-open">
-            <div className="eyebrow">C · A — UNA NOCHE</div>
-            <h1 className="display invite-open-title">DOS HISTORIAS<br /><em>UNA NOCHE</em></h1>
-            <p>Una celebración compartida para Cándida y Alberto.</p>
-            <div className="hero-rule"><span /></div>
-            <span className="scroll-note">DESLIZA ↓</span>
-          </div>
-        )}
+      <section className="personal-cover">
+        <div className="silk silk-one" /><div className="silk silk-two" /><div className="bokeh bokeh-one" /><div className="bokeh bokeh-two" />
+        <div className="personal-envelope">
+          <div className="envelope-edge" />
+          {!open ? (
+            <>
+              <div className="micro-row"><span>C · A</span><span>UNA NOCHE</span></div>
+              <div className="seal"><span>C</span><i>·</i><span>A</span></div>
+              <p className="kicker">UNA INVITACIÓN PERSONAL PARA</p>
+              <h1 className="display personal-name">{p.name}</h1>
+              <div className="personal-age"><strong>{p.age}</strong><span>AÑOS</span></div>
+              <div className="light-motif"><span /></div>
+              <button className="gold-button open-button" onClick={() => setOpen(true)}>ABRIR INVITACIÓN <b>↓</b></button>
+              <p className="cover-date">SÁBADO · 03 OCTUBRE 2026 · 8:00 PM</p>
+            </>
+          ) : (
+            <div className="opening">
+              <div className="micro-row"><span>C · A</span><span>03 · 10 · 26</span></div>
+              <p className="kicker">UNA FECHA · DOS HISTORIAS</p>
+              <div className="light-motif"><span /></div>
+              <h1 className="display opening-title">DOS HISTORIAS<br /><em>UNA NOCHE</em></h1>
+              <p>Has sido invitado a compartir una celebración creada para Cándida y Alberto.</p>
+              <span className="scroll-cue">DESLIZA PARA DESCUBRIR <b>↓</b></span>
+            </div>
+          )}
+        </div>
       </section>
 
       {open && <>
-        <section className="editorial-section invite-intro">
-          <div className="section-number">01</div>
-          <div className="editorial-grid">
-            <div><div className="eyebrow">PARA TI</div><h2 className="display section-title">Esta noche<br /><em>es especial.</em></h2></div>
-            <div className="editorial-copy"><div className="gold-mark">{p.name}</div><p>Has sido invitado a compartir una noche pensada para celebrar una historia, una familia y un nuevo recuerdo.</p><p>Guarda la fecha y acompáñanos.</p></div>
+        <section className="story-section">
+          <div className="section-label">01 · TU PERSONA A CELEBRAR</div>
+          <div className="story-layout">
+            <div><p className="kicker">PARA TI</p><h2 className="display story-title">Esta noche<br /><em>es especial.</em></h2></div>
+            <div className="story-copy"><span className="gold-word">{p.name}</span><p>Esta invitación ha sido preparada especialmente para ti. El 3 de octubre nos reunimos para celebrar dos vidas, dos edades y todos los recuerdos que las acompañan.</p><p>Guarda la fecha. Queremos compartir esta noche contigo.</p></div>
           </div>
         </section>
 
-        <section className="celebration-section">
-          <div className="section-number">02</div>
-          <div className="people-grid">
-            <article className="person-card candida"><div className="person-watermark">C</div><div className="person-top"><span>CÁNDIDA</span><span>66</span></div><div className="person-bottom"><div className="person-name display">CÁNDIDA</div><div className="person-age"><strong>66</strong><span>AÑOS</span></div></div></article>
-            <article className="person-card alberto"><div className="person-watermark">A</div><div className="person-top"><span>ALBERTO</span><span>38</span></div><div className="person-bottom"><div className="person-name display">ALBERTO</div><div className="person-age"><strong>38</strong><span>AÑOS</span></div></div></article>
+        <section className="people-section">
+          <div className="section-label">02 · DOS HISTORIAS</div>
+          <div className="people-intro"><p className="kicker">LAS PERSONAS QUE CELEBRAMOS</p><h2 className="display story-title">UNA VIDA.<br /><em>DOS HISTORIAS.</em></h2></div>
+          <div className="portrait-grid">
+            <article className="portrait-card">
+              <div className="portrait-glow" /><div className="portrait-letter">C</div>
+              <div className="portrait-caption"><span>01</span><small>CELEBRAMOS</small><strong className="display">CÁNDIDA</strong><em>66 AÑOS</em></div>
+            </article>
+            <article className="portrait-card portrait-two">
+              <div className="portrait-glow" /><div className="portrait-letter">A</div>
+              <div className="portrait-caption"><span>02</span><small>CELEBRAMOS</small><strong className="display">ALBERTO</strong><em>38 AÑOS</em></div>
+            </article>
           </div>
         </section>
 
-        <section className="editorial-section details-section">
-          <div className="section-number">03</div>
-          <div className="detail-frame">
-            <div className="eyebrow">LA NOCHE</div>
-            <div className="big-date display">03<span>·</span>10<span>·</span>26</div>
-            <div className="detail-meta">
+        <section className="event-section">
+          <div className="section-label">03 · LA NOCHE</div>
+          <div className="event-card-premium">
+            <p className="kicker">GUARDA LA FECHA</p>
+            <div className="event-number display">03<span>·</span>10<span>·</span>26</div>
+            <div className="event-details">
               <div><small>SÁBADO</small><strong>8:00 PM</strong></div>
-              <div><small>LUGAR</small><strong>8261 SW 8th St</strong><span>North Lauderdale, FL 33068</span></div>
+              <div><small>UBICACIÓN</small><strong>8261 SW 8th St</strong><span>North Lauderdale, FL 33068</span></div>
             </div>
-            <div className="detail-actions"><a className="cta" href={eventConfig.maps} target="_blank" rel="noreferrer">VER UBICACIÓN ↗</a><a className="text-link" href="/api/calendar">AGREGAR AL CALENDARIO ↓</a></div>
+            <div className="event-actions"><a className="gold-button" href={eventConfig.maps} target="_blank" rel="noreferrer">VER UBICACIÓN <b>↗</b></a><a className="gold-text" href="/api/calendar">AGREGAR AL CALENDARIO ↓</a></div>
           </div>
         </section>
 
         <section className="rsvp-section">
-          <div className="section-number">04</div>
+          <div className="section-label">04 · TU RESPUESTA</div>
           <div className="rsvp-card">
-            <div className="eyebrow">RSVP</div>
-            <h2 className="display section-title">¿NOS<br /><em>ACOMPAÑAS?</em></h2>
+            <div className="seal small-seal"><span>C</span><i>·</i><span>A</span></div>
+            <p className="kicker">RSVP</p>
+            <h2 className="display story-title">¿NOS<br /><em>ACOMPAÑAS?</em></h2>
+            <p className="rsvp-intro">Confirma tu asistencia para que podamos preparar esta noche para ti.</p>
             <form onSubmit={submit}>
-              <div className="field"><label>Nombre</label><input required value={name} onChange={x => setName(x.target.value)} placeholder="Tu nombre" /></div>
+              <div className="field"><label>Tu nombre</label><input required value={name} onChange={x => setName(x.target.value)} placeholder="Escribe tu nombre" /></div>
               <div className="field"><label>¿Asistirás?</label><div className="radio-row"><button type="button" className={"radio " + (att === true ? "active" : "")} onClick={() => setAtt(true)}>SÍ, ESTARÉ</button><button type="button" className={"radio " + (att === false ? "active" : "")} onClick={() => setAtt(false)}>NO PODRÉ</button></div></div>
               {att === true && <div className="field"><label>Cantidad de personas</label><select value={party} onChange={x => setParty(Number(x.target.value))}>{Array.from({ length: invitation.max_guests }, (_, n) => <option key={n + 1} value={n + 1}>{n + 1} {n === 0 ? "persona" : "personas"}</option>)}</select></div>}
-              <div className="field"><label>Mensaje opcional</label><textarea rows={4} maxLength={500} value={msg} onChange={x => setMsg(x.target.value)} placeholder="Déjanos un mensaje…" /></div>
-              <button className="cta cta-large" disabled={saving || att === null}>{saving ? "GUARDANDO…" : "CONFIRMAR RESPUESTA"}</button>
-              {saved && <div className="notice">✓ GRACIAS POR {att ? "CONFIRMAR" : "AVISARNOS"}. NOS VEMOS ESA NOCHE.</div>}
+              <div className="field"><label>Mensaje opcional</label><textarea rows={4} maxLength={500} value={msg} onChange={x => setMsg(x.target.value)} placeholder="Déjanos unas palabras…" /></div>
+              <button className="gold-button submit-button" disabled={saving || att === null}>{saving ? "GUARDANDO…" : "CONFIRMAR ASISTENCIA"} <b>→</b></button>
+              {saved && <div className="notice">✓ {att ? "ASISTENCIA CONFIRMADA" : "HEMOS RECIBIDO TU RESPUESTA"}<br /><span>Gracias. Nos vemos esa noche.</span></div>}
             </form>
           </div>
         </section>
 
-        <section className="final-section invite-final">
-          <div className="final-glow" /><div className="eyebrow">03 · 10 · 26</div><div className="final-mark display">C · A</div><h2 className="display final-title">Nos vemos<br /><em>esa noche.</em></h2><div className="hero-rule"><span /></div>
+        <section className="personal-final">
+          <div className="silk silk-one" /><div className="bokeh bokeh-two" />
+          <p className="kicker">UNA FECHA · DOS HISTORIAS</p>
+          <div className="final-monogram display">C <span>·</span> A</div>
+          <h2 className="display final-title">Nos vemos<br /><em>esa noche.</em></h2>
+          <div className="light-motif"><span /></div>
+          <small>03 · 10 · 2026</small>
         </section>
       </>}
     </main>
