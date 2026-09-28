@@ -70,7 +70,6 @@ function PersonalInvitation({ invitation, token }: { invitation: Invitation; tok
   const [message, setMessage] = useState(invitation.message ?? "");
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
-  const person = invitation.honoree === "candida" ? eventConfig.candida : eventConfig.alberto;
   const guestLabel = invitation.guest_name?.trim() || "invitado especial";
   const places = invitation.max_guests === 1 ? "[1] lugar" : "[" + invitation.max_guests + "] lugares";
 
@@ -131,7 +130,7 @@ function PersonalInvitation({ invitation, token }: { invitation: Invitation; tok
               <div className="hero-card-border" />
               <p className="lux-overline">C — UNA NOCHE</p><div className="hero-rule"><i /></div>
               <p className="hero-greeting">Esta invitación está reservada para ti</p>
-              <h1><span>Cándida</span><b>&amp;</b><span>Alberto</span></h1>
+              <h1><span>Cándida</span></h1>
               <p className="hero-subtitle">UNA FECHA · UNA HISTORIA</p>
               <div className="hero-date-lockup"><strong>03</strong><span>OCTUBRE<br /><b>2026</b></span></div>
               <p className="hero-time">SÁBADO · 7:00 PM</p>
@@ -141,8 +140,8 @@ function PersonalInvitation({ invitation, token }: { invitation: Invitation; tok
           <section className="lux-card-scene paper-scene">
             <article className="lux-paper-card">
               <p className="lux-overline">LA CELEBRACIÓN</p><div className="paper-monogram">C</div>
-              <h2>Dos historias.<br /><i>Una noche.</i></h2>
-              <div className="age-grid"><div><small>CÁNDIDA</small><strong>66</strong><span>AÑOS</span></div><div className="age-divider" /><div><small>ALBERTO</small><strong>38</strong><span>AÑOS</span></div></div>
+              <h2>Una historia.<br /><i>Una noche.</i></h2>
+              <div className="age-grid single"><div><small>CÁNDIDA</small><strong>66</strong><span>AÑOS</span></div></div>
               <p className="paper-copy">Una noche para celebrar la vida, compartir recuerdos y reunir a quienes queremos cerca.</p>
             </article>
           </section>
