@@ -40,7 +40,7 @@ export default function HomePage() {
           <section className="reveal-hero">
             <div className="reveal-frame">
               <p className="eyebrow">UNA FECHA · DOS HISTORIAS</p>
-              <div className="ornament-line"><span>✦</span></div>
+              <div className="ornament-line"><span aria-hidden="true" /></div>
               <h1 className="script-title">Cándida <span>&amp;</span> Alberto</h1>
               <p className="hero-copy">Con mucha alegría queremos compartir contigo una noche muy especial. Nos encantaría que nos acompañes a celebrar sus 66 y 38 años.</p>
               <div className="hero-date"><strong>03</strong><div><span>OCTUBRE</span><b>2026</b></div></div>
@@ -53,10 +53,10 @@ export default function HomePage() {
               <p className="eyebrow">CELEBRAMOS A</p>
               <div className="celebrants">
                 <article><span>C</span><small>CÁNDIDA</small><strong>66</strong><em>AÑOS</em></article>
-                <div className="celebrants-divider">✦</div>
+                <div className="celebrants-divider" aria-hidden="true" />
                 <article><span>A</span><small>ALBERTO</small><strong>38</strong><em>AÑOS</em></article>
               </div>
-              <div className="ornament-line"><span>◆</span></div>
+              <div className="ornament-line"><span aria-hidden="true" /></div>
               <p className="story-copy">Una fecha. Dos historias. Dos edades. Y una noche para reunir a quienes forman parte de nuestros recuerdos.</p>
             </div>
           </section>
@@ -69,7 +69,7 @@ export default function HomePage() {
                 <div><small>SÁBADO</small><strong>8:00 PM</strong></div>
                 <div><small>LUGAR</small><strong>8261 SW 8th St</strong><span>North Lauderdale, FL 33068</span></div>
               </div>
-              <a className="gold-button" href={eventConfig.maps} target="_blank" rel="noreferrer">VER UBICACIÓN <b>↗</b></a>
+              <a className="gold-button" href={eventConfig.maps} target="_blank" rel="noreferrer">VER UBICACIÓN <b>ABRIR</b></a>
               <a className="text-link" href="/api/calendar">AGREGAR AL CALENDARIO</a>
             </div>
           </section>
