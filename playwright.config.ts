@@ -1,1 +1,20 @@
-import{defineConfig,devices}from"@playwright/test";export default defineConfig({testDir:"./tests/e2e",timeout:30000,expect:{timeout:10000},fullyParallel:false,retries:1,use:{baseURL:"http://127.0.0.1:8788"},webServer:{command:"npm run build && npx wrangler pages dev out --port 8788 --compatibility-date=2026-09-27",url:"http://127.0.0.1:8788",reuseExistingServer:false,timeout:120000},projects:[{name:"chromium-iphone",use:{...devices["iPhone 13"],browserName:"chromium"}},{name:"webkit-iphone",use:{...devices["iPhone 13"],browserName:"webkit"}}]})
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./tests/e2e",
+  timeout: 30000,
+  expect: { timeout: 10000 },
+  fullyParallel: false,
+  retries: 1,
+  use: { baseURL: "http://127.0.0.1:3000" },
+  webServer: {
+    command: "npm run build && npm start -- -p 3000",
+    url: "http://127.0.0.1:3000",
+    reuseExistingServer: false,
+    timeout: 120000
+  },
+  projects: [
+    { name: "chromium-iphone", use: { ...devices["iPhone 13"], browserName: "chromium" } },
+    { name: "webkit-iphone", use: { ...devices["iPhone 13"], browserName: "webkit" } }
+  ]
+});
