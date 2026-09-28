@@ -1,0 +1,1 @@
+import{describe,it,expect}from"vitest";import{createIcs}from"@/lib/calendar";describe("calendar",()=>it("creates the requested event",()=>{const x=createIcs("test.local");expect(x).toContain("C · A — UNA NOCHE");expect(x).toContain("8261 SW 8th St");expect(x).toContain("20261004T000000Z")}));
