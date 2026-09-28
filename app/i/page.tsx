@@ -106,120 +106,68 @@ function PersonalInvitation({ invitation, token }: { invitation: Invitation; tok
   }
 
   return (
-    <main className={"invitation-experience " + (opened ? "opened" : "")}>
-      <section className="envelope-stage" aria-label="Invitación">
-        <div className="stars" aria-hidden="true"><i /><i /><i /><i /><i /><i /></div>
-        <p className="envelope-kicker">C · A</p>
-        <p className="envelope-label">INVITACIÓN PERSONAL</p>
-
-        <div className="envelope-wrap">
-          <button className={"envelope " + (opened ? "is-opening" : "")} onClick={openInvitation} aria-label="Abrir invitación tocando el sello" type="button">
-            <div className="envelope-back" />
-            <div className="envelope-paper">
-              <div className="paper-lines">
-                <span>UNA FECHA · DOS HISTORIAS</span>
-                <strong>CÁNDIDA &amp; ALBERTO</strong>
-                <small>03 · OCTUBRE · 2026</small>
-              </div>
-            </div>
-            <div className="envelope-flap"><span className="flap-monogram">C · A</span></div>
-            <div className="envelope-front">
-              <span className="corner corner-a" /><span className="corner corner-b" /><span className="corner corner-c" /><span className="corner corner-d" />
-              <div className="envelope-address"><small>PARA</small><strong>{guestLabel}</strong></div>
-            </div>
-            <div className="wax-seal"><span>C</span><i>·</i><span>A</span></div>
+    <main className={"lux-invitation " + (opened ? "is-open" : "")}>
+      <section className="lux-opening" aria-label="Invitación personal">
+        <div className="lux-orbit orbit-one" aria-hidden="true" /><div className="lux-orbit orbit-two" aria-hidden="true" />
+        <div className="lux-stars" aria-hidden="true"><i /><i /><i /><i /><i /></div>
+        <div className="lux-brand"><span>C</span><b>·</b><span>A</span></div>
+        <p className="lux-kicker">INVITACIÓN PERSONAL</p>
+        <div className="lux-envelope-scene">
+          <button className={"lux-envelope " + (opened ? "opening" : "")} onClick={openInvitation} aria-label="Abrir la invitación" type="button">
+            <div className="lux-envelope-shadow" /><div className="lux-envelope-body" />
+            <div className="lux-envelope-liner"><span>C · A</span><small>03 · 10 · 2026</small></div>
+            <div className="lux-envelope-card"><small>PARA {guestLabel.toUpperCase()}</small><strong>CÁNDIDA</strong><em>&amp;</em><strong>ALBERTO</strong><span>03 OCTUBRE 2026</span></div>
+            <div className="lux-envelope-flap"><span>C · A</span></div>
+            <div className="lux-envelope-front"><span className="lux-corner tl" /><span className="lux-corner tr" /><span className="lux-corner bl" /><span className="lux-corner br" /><div className="lux-address"><small>Hemos reservado {places}</small><strong>C · A</strong></div></div>
+            <div className="lux-seal"><span>C</span><i>·</i><span>A</span></div>
           </button>
         </div>
-
-        <div className="open-prompt">
-          <span className="prompt-line" />
-          <span>{opened ? "LA INVITACIÓN SE ESTÁ ABRIENDO" : "TOCA EL SELLO PARA ABRIR"}</span>
-          <span className="prompt-line" />
-        </div>
-
-        <div className="personal-hint">
-          <strong>Hola, {guestLabel}.</strong>
-          <span>Hemos reservado {places} para ti.</span>
-        </div>
+        <div className="lux-open-label"><span /><p>{opened ? "ABRIENDO" : "TOCA EL SELLO"} </p><span /></div>
       </section>
-
       {revealed && (
-        <div id="invitation-content" className="revealed-invitation">
-          <section className="reveal-hero">
-            <div className="reveal-frame">
-              <p className="eyebrow">UNA FECHA · DOS HISTORIAS</p>
-              <div className="ornament-line"><span aria-hidden="true" /></div>
-              <p className="hello">Hola, {guestLabel}.</p>
-              <h1 className="script-title">Cándida <span>&amp;</span> Alberto</h1>
-              <p className="hero-copy">Con mucha alegría queremos compartir contigo una noche muy especial. Nos encantaría que nos acompañes a celebrar a Cándida y Alberto.</p>
-              <div className="hero-date"><strong>03</strong><div><span>OCTUBRE</span><b>2026</b></div></div>
+        <div id="invitation-content" className="lux-content">
+          <section className="lux-card-scene hero-scene">
+            <article className="hero-card">
+              <div className="hero-card-border" />
+              <p className="lux-overline">C · A — UNA NOCHE</p><div className="hero-rule"><i /></div>
+              <p className="hero-greeting">Esta invitación está reservada para ti</p>
+              <h1><span>Cándida</span><b>&amp;</b><span>Alberto</span></h1>
+              <p className="hero-subtitle">UNA FECHA · DOS HISTORIAS</p>
+              <div className="hero-date-lockup"><strong>03</strong><span>OCTUBRE<br /><b>2026</b></span></div>
               <p className="hero-time">SÁBADO · 8:00 PM</p>
-              <p className="hero-note">Dos historias · una noche para recordar</p>
-            </div>
+              <div className="hero-bottom-line">PARA {guestLabel.toUpperCase()} · {places.toUpperCase()}</div>
+            </article>
           </section>
-
-          <section className="story-section light-paper">
-            <div className="paper-card">
-              <p className="eyebrow">CELEBRAMOS A</p>
-              <div className="celebrants">
-                <article><span>C</span><small>CÁNDIDA</small><strong>66</strong><em>AÑOS</em></article>
-                <div className="celebrants-divider" aria-hidden="true" />
-                <article><span>A</span><small>ALBERTO</small><strong>38</strong><em>AÑOS</em></article>
-              </div>
-              <div className="ornament-line"><span aria-hidden="true" /></div>
-              <p className="story-copy">Una fecha. Dos historias. Dos edades. Y la oportunidad de reunir a las personas que forman parte de nuestros recuerdos.</p>
-            </div>
+          <section className="lux-card-scene paper-scene">
+            <article className="lux-paper-card">
+              <p className="lux-overline">LA CELEBRACIÓN</p><div className="paper-monogram">C · A</div>
+              <h2>Dos historias.<br /><i>Una noche.</i></h2>
+              <div className="age-grid"><div><small>CÁNDIDA</small><strong>66</strong><span>AÑOS</span></div><div className="age-divider" /><div><small>ALBERTO</small><strong>38</strong><span>AÑOS</span></div></div>
+              <p className="paper-copy">Una noche para celebrar la vida, compartir recuerdos y reunir a quienes queremos cerca.</p>
+            </article>
           </section>
-
-          <section className="event-section">
-            <div className="event-panel">
-              <p className="eyebrow">EL GRAN ENCUENTRO</p>
-              <h2 className="script-title">Guarda la fecha</h2>
-              <div className="big-date"><strong>03</strong><span>OCTUBRE<br /><b>2026</b></span></div>
-              <div className="event-details">
-                <div><small>SÁBADO</small><strong>8:00 PM</strong></div>
-                <div><small>LUGAR</small><strong>8261 SW 8th St</strong><span>North Lauderdale, FL 33068</span></div>
-              </div>
-              <a className="gold-button" href={eventConfig.maps} target="_blank" rel="noreferrer">VER UBICACIÓN <b>ABRIR</b></a>
-              <a className="text-link" href="/api/calendar">AGREGAR AL CALENDARIO</a>
-            </div>
+          <section className="lux-card-scene date-scene">
+            <article className="lux-dark-card">
+              <p className="lux-overline">GUARDA LA FECHA</p><div className="date-display"><strong>03</strong><div><span>OCTUBRE</span><b>2026</b></div></div>
+              <div className="date-details"><div><small>SÁBADO</small><strong>8:00 PM</strong></div><div><small>LUGAR</small><strong>8261 SW 8th St</strong><span>North Lauderdale, FL 33068</span></div></div>
+              <div className="lux-actions"><a href={eventConfig.maps} target="_blank" rel="noreferrer">VER UBICACIÓN</a><a href="/api/calendar">AÑADIR AL CALENDARIO</a></div>
+            </article>
           </section>
-
-          <section className="rsvp-section">
-            <div className="rsvp-card">
-              <div className="mini-seal">C · A</div>
-              <p className="eyebrow">TU RESPUESTA</p>
-              <h2 className="script-title">¿Nos acompañas?</h2>
-              <p className="rsvp-copy">Al final de la invitación encontrarás la opción para confirmar tu asistencia.</p>
+          <section className="lux-card-scene rsvp-scene">
+            <article className="lux-rsvp-card">
+              <div className="rsvp-monogram">C · A</div><p className="lux-overline">TU RESPUESTA</p><h2>¿Nos acompañas?</h2>
+              <p>Hemos reservado {places} para ti.</p>
               <form onSubmit={submit}>
                 <label>Tu nombre<input required value={name} onChange={e => setName(e.target.value)} placeholder="Escribe tu nombre" /></label>
-                <label>¿Asistirás?
-                  <span className="rsvp-options">
-                    <button type="button" className={att === true ? "selected" : ""} onClick={() => setAtt(true)}>SÍ, ASISTIRÉ</button>
-                    <button type="button" className={att === false ? "selected" : ""} onClick={() => setAtt(false)}>NO PODRÉ ASISTIR</button>
-                  </span>
-                </label>
-                {att === true && (
-                  <label>Cantidad de personas
-                    <select value={party} onChange={e => setParty(Number(e.target.value))}>
-                      {Array.from({ length: invitation.max_guests }, (_, n) => <option key={n + 1} value={n + 1}>{n + 1} {n === 0 ? "persona" : "personas"}</option>)}
-                    </select>
-                  </label>
-                )}
-                <label>Mensaje para Cándida &amp; Alberto<textarea rows={4} maxLength={500} value={message} onChange={e => setMessage(e.target.value)} placeholder="Déjanos unas palabras…" /></label>
-                <button className="gold-button full" disabled={saving || att === null} type="submit">{saving ? "GUARDANDO…" : "CONFIRMAR ASISTENCIA"}</button>
-                {saved && <div className="rsvp-success"><strong>RESPUESTA RECIBIDA</strong><span>{att ? "Nos vemos el 3 de octubre. Será una noche muy especial." : "Gracias por hacérnoslo saber."}</span></div>}
+                <label>Asistencia<span className="lux-rsvp-options"><button type="button" className={att === true ? "selected" : ""} onClick={() => setAtt(true)}>SÍ, ASISTIRÉ</button><button type="button" className={att === false ? "selected" : ""} onClick={() => setAtt(false)}>NO PODRÉ ASISTIR</button></span></label>
+                {att === true && <label>Cantidad de personas<select value={party} onChange={e => setParty(Number(e.target.value))}>{Array.from({length: invitation.max_guests},(_,n)=><option key={n+1} value={n+1}>{n+1}</option>)}</select></label>}
+                <label>Un mensaje<textarea rows={4} maxLength={500} value={message} onChange={e => setMessage(e.target.value)} placeholder="Tus palabras para Cándida y Alberto" /></label>
+                <button className="lux-submit" disabled={saving || att === null} type="submit">{saving ? "GUARDANDO…" : "CONFIRMAR ASISTENCIA"}</button>
+                {saved && <div className="lux-success"><strong>RESPUESTA RECIBIDA</strong><span>{att ? "Nos vemos el 3 de octubre." : "Gracias por hacérnoslo saber."}</span></div>}
               </form>
-            </div>
+            </article>
           </section>
-
-          <footer className="final-card">
-            <div className="final-seal">C <span>·</span> A</div>
-            <p className="eyebrow">CON CARIÑO</p>
-            <h2 className="script-title">Cándida &amp; Alberto</h2>
-            <p>03 · 10 · 2026</p>
-            <small>UNA FECHA · DOS HISTORIAS</small>
-          </footer>
+          <footer className="lux-closing"><div className="closing-monogram">C <i>·</i> A</div><p>03 · 10 · 2026</p><small>UNA FECHA · DOS HISTORIAS</small></footer>
         </div>
       )}
     </main>
