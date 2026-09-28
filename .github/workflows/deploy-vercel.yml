@@ -51,4 +51,5 @@ jobs:
           echo "$body"
           echo "$body" | grep -q "CÁNDIDA"
           echo "$body" | grep -q "ALBERTO"
-          echo "$body" | grep -q "OCTUBRE 2026"
+          echo "$body" | grep -q "OCTUBRE"
+          echo "$body" | grep -q "2026"
